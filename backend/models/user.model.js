@@ -21,7 +21,8 @@ const userSchema = new mongoose.Schema(
     profileImageUrl: {
       type: String,
       default:
-        process.env.DEFAULT_PROFILE_IMAGE,
+        process.env.DEFAULT_PROFILE_IMAGE_URL ||
+        "https://res.cloudinary.com/dbli9atjv/image/upload/v1775673999/user_akkke4.png",
     },
 
     role: {
