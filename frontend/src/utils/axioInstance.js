@@ -1,6 +1,6 @@
 import axios from "axios"
 
-const BASE_URL = "https://task-manager-backend-bw2b.onrender.com"
+const BASE_URL = "https://task-manager-backend-bw2b.onrender.com/api"
 
 const axiosInstance = axios.create({
   baseURL: BASE_URL,
