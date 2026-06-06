@@ -1,25 +1,28 @@
 import React from "react"
+import { motion } from "framer-motion"
 
-const Progress = ({ progress, status }) => {
+const Progress = ({ progress = 0, status }) => {
   const getColor = () => {
     switch (status) {
       case "In Progress":
-        return "text-cyan-500 bg-cyan-500 border border-cyan-500/10"
-
+        return "bg-cyan-500"
       case "Completed":
-        return "text-indigo-500 bg-indigo-500 border border-indigo-500/10"
-
+        return "bg-green-500"
       default:
-        return "text-violet-500 bg-violet-500 border border-violet-500/10"
+        return "bg-violet-500"
     }
   }
 
   return (
-    <div className="w-full h-1.5 bg-gray-200 rounded-full">
-      <div
-        className={`${getColor} h-1.5 rounded-full text-center text-sm font-medium`}
-        style={{ width: `${progress}%` }}
-      ></div>
+    <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+
+      <motion.div
+        className={`h-full ${getColor()} rounded-full`}
+        initial={{ width: 0 }}
+        animate={{ width: `${progress}%` }}
+        transition={{ duration: 0.4 }}
+      />
+
     </div>
   )
 }

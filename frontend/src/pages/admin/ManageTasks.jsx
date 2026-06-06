@@ -6,18 +6,20 @@ import TaskStatusTabs from "../../components/TaskStatusTabs"
 import { FaFileLines } from "react-icons/fa6"
 import TaskCard from "../../components/TaskCard"
 import toast from "react-hot-toast"
+import { motion } from "framer-motion"
 
 const ManageTasks = () => {
   const [allTasks, setAllTasks] = useState([])
-  const [tabs, setTabs] = useState("All")
+  const [tabs, setTabs] = useState([])
   const [filterStatus, setFilterStatus] = useState("All")
-
-  console.log(tabs)
+  const [loading, setLoading] = useState(true)
 
   const navigate = useNavigate()
 
   const getAllTasks = async () => {
     try {
+      setLoading(true)
+
       const response = await axiosInstance.get("/tasks", {
         params: {
           status: filterStatus === "All" ? "" : filterStatus,
@@ -25,26 +27,26 @@ const ManageTasks = () => {
       })
 
       if (response?.data) {
-        setAllTasks(response.data?.tasks?.length > 0 ? response.data.tasks : [])
+        setAllTasks(response.data.tasks || [])
       }
 
-      const statusSummary = response.data?.statusSummary || {}
+      const summary = response.data?.statusSummary || {}
 
-      const statusArray = [
-        { label: "All", count: statusSummary.all || 0 },
-        { label: "Pending", count: statusSummary.pendingTasks || 0 },
-        { label: "In Progress", count: statusSummary.inProgressTasks || 0 },
-        { label: "Completed", count: statusSummary.completedTasks || 0 },
-      ]
-
-      setTabs(statusArray)
+      setTabs([
+        { label: "All", count: summary.all || 0 },
+        { label: "Pending", count: summary.pendingTasks || 0 },
+        { label: "In Progress", count: summary.inProgressTasks || 0 },
+        { label: "Completed", count: summary.completedTasks || 0 },
+      ])
     } catch (error) {
-      console.log("Error fetching tasks: ", error)
+      console.log(error)
+    } finally {
+      setLoading(false)
     }
   }
 
-  const handleClick = (taskData) => {
-    navigate("/admin/create-task", { state: { taskId: taskData._id } })
+  const handleClick = (task) => {
+    navigate("/admin/create-task", { state: { taskId: task._id } })
   }
 
   const handleDownloadReport = async () => {
@@ -53,89 +55,115 @@ const ManageTasks = () => {
         responseType: "blob",
       })
 
-      // create a url for the blob
       const url = window.URL.createObjectURL(new Blob([response.data]))
       const link = document.createElement("a")
 
       link.href = url
-
       link.setAttribute("download", "tasks_details.xlsx")
+
       document.body.appendChild(link)
-
       link.click()
-
       document.body.removeChild(link)
+
       window.URL.revokeObjectURL(url)
     } catch (error) {
-      console.log("Error downloading task-details report: ", error)
-      toast.error("Error downloading task-details report. Please try again!")
+      toast.error("Download failed")
     }
   }
 
   useEffect(() => {
-    getAllTasks(filterStatus)
-
-    return () => {}
+    getAllTasks()
   }, [filterStatus])
 
   return (
     <DashboardLayout activeMenu={"Manage Task"}>
-      <div className="my-6 px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row justify-between md:items-center gap-4 mb-6">
-          <div className="flex items-center justify-between gap-4 w-full md:w-auto ">
-            <h2 className="text-2xl md:text-3xl font-bold text-gray-800">
-              My Tasks
-            </h2>
+      <motion.div
+        className="p-6 space-y-6"
+        initial={{ opacity: 0, y: 10 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
+
+        {/*  HEADER */}
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+          <h2 className="text-2xl md:text-3xl font-bold text-gray-800 tracking-tight">
+            Manage Tasks
+          </h2>
+
+          <div className="flex flex-wrap items-center gap-3">
+            <TaskStatusTabs
+              tabs={tabs}
+              activeTab={filterStatus}
+              setActiveTab={setFilterStatus}
+            />
 
             <button
-              className="md:hidden px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-colors duration-200 font-medium shadow-sm hover:shadow-md cursor-pointer"
               onClick={handleDownloadReport}
-              type="button"
+              className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 hover:shadow-md transition"
             >
+              <FaFileLines />
               Download
             </button>
           </div>
+        </div>
 
-          {allTasks?.length > 0 && (
-            <div className="flex flex-col sm:flex-row items-center gap-4 w-full md:w-auto">
-              <TaskStatusTabs
-                tabs={tabs}
-                activeTab={filterStatus}
-                setActiveTab={setFilterStatus}
-              />
+        {/*  LOADING */}
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {[...Array(6)].map((_, i) => (
+              <div key={i} className="bg-white p-5 rounded-2xl shadow animate-pulse">
+                <div className="h-4 bg-gray-300 rounded w-1/2 mb-3"></div>
+                <div className="h-3 bg-gray-200 rounded w-3/4 mb-2"></div>
+                <div className="h-3 bg-gray-200 rounded w-2/3"></div>
+              </div>
+            ))}
+          </div>
+        ) : allTasks.length > 0 ? (
 
-              <button
-                className="hidden md:flex items-center gap-2 px-4 py-2.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg transition-all duration-200 font-medium shadow-sm hover:shadow-md active:scale-95 cursor-pointer"
-                onClick={handleDownloadReport}
-                type="button"
+          /*  TASK GRID */
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+            {allTasks.map((item, index) => (
+              <motion.div
+                key={item._id}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.05 }}
+                whileHover={{ scale: 1.02 }}
               >
-                <FaFileLines className="text-lg" />
-                <span>Download Report</span>
-              </button>
-            </div>
-          )}
-        </div>
+                <TaskCard
+                  title={item.title}
+                  description={item.description}
+                  priority={item.priority}
+                  status={item.status}
+                  progress={item.progress}
+                  createdAt={item.createdAt}
+                  dueDate={item.dueDate}
+                  assignedTo={item.assignedTo?.map(
+                    (i) => i.profileImageUrl
+                  )}
+                  attachmentCount={item.attachments?.length || 0}
+                  completedTodoCount={item.completedTodoCount || 0}
+                  todoChecklist={item.todoChecklist || []}
+                  onClick={() => handleClick(item)}
+                />
+              </motion.div>
+            ))}
+          </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mt-4">
-          {allTasks?.map((item, index) => (
-            <TaskCard
-              key={item._id}
-              title={item.title}
-              description={item.description}
-              priority={item.priority}
-              status={item.status}
-              progress={item.progress}
-              createdAt={item.createdAt}
-              dueDate={item.dueDate}
-              assignedTo={item.assignedTo?.map((item) => item.profileImageUrl)}
-              attachmentCount={item.attachments?.length || 0}
-              completedTodoCount={item.completedTodoCount || 0}
-              todoChecklist={item.todoChecklist || []}
-              onClick={() => handleClick(item)}
-            />
-          ))}
-        </div>
-      </div>
+        ) : (
+
+          /*  EMPTY STATE */
+          <div className="text-center py-16">
+            <p className="text-gray-500 text-lg">
+              No tasks available 📂
+            </p>
+            <p className="text-sm text-gray-400 mt-2">
+              Create tasks to start managing work
+            </p>
+          </div>
+
+        )}
+
+      </motion.div>
     </DashboardLayout>
   )
 }

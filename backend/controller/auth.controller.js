@@ -17,33 +17,31 @@ export const signup = async (req, res, next) => {
     return next(errorHandler(400, "All fields are required"))
   }
 
-  //   Check if user already exists
-  const isAlreadyExist = await User.findOne({ email })
-
-  if (isAlreadyExist) {
-    return next(errorHandler(400, "User already exists"))
-  }
-
-  //   check user role
-  let role = "user"
-
-
-  const hashedPassword = bcryptjs.hashSync(password, 10)
-
-  const newUser = new User({
-    name,
-    email,
-    password: hashedPassword,
-    profileImageUrl,
-    role,
-  })
-
   try {
-    await newUser.save()
+    // Check if user already exists
+    const isAlreadyExist = await User.findOne({ email })
 
-    res.json("Signup successful")
+    if (isAlreadyExist) {
+      return next(errorHandler(400, "User already exists"))
+    }
+
+    let role = "user"
+    const hashedPassword = bcryptjs.hashSync(password, 10)
+
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      // FIX: If profileImageUrl is an empty string (""), converting it to undefined forces the Schema default to kick in
+      profileImageUrl: profileImageUrl && profileImageUrl.trim() !== "" ? profileImageUrl : undefined,
+      role,
+    })
+
+    await newUser.save()
+    res.status(201).json("Signup successful")
+    
   } catch (error) {
-    next(error.message)
+    next(error)
   }
 }
 
@@ -75,12 +73,15 @@ export const signin = async (req, res, next) => {
 
     const { password: pass, ...rest } = validUser._doc
 
-    res.status(200).cookie("access_token", 
-      token, { 
+    res
+      .status(200)
+      .cookie("access_token", token, { 
         httpOnly: true,
         secure: true,
         sameSite: "none",
-       }).json(rest)
+      })
+      .json(rest)
+      
   } catch (error) {
     next(error)
   }
@@ -95,8 +96,8 @@ export const userProfile = async (req, res, next) => {
     }
 
     const { password: pass, ...rest } = user._doc
-
     res.status(200).json(rest)
+    
   } catch (error) {
     next(error)
   }
@@ -113,15 +114,20 @@ export const updateUserProfile = async (req, res, next) => {
     user.name = req.body.name || user.name
     user.email = req.body.email || user.email
 
+    // Protect against accidentally saving blank image fields during a profile update
+    if (req.body.profileImageUrl && req.body.profileImageUrl.trim() !== "") {
+      user.profileImageUrl = req.body.profileImageUrl
+    }
+
     if (req.body.password) {
       user.password = bcryptjs.hashSync(req.body.password, 10)
     }
 
     const updatedUser = await user.save()
-
-    const { password: pass, ...rest } = user._doc
+    const { password: pass, ...rest } = updatedUser._doc
 
     res.status(200).json(rest)
+    
   } catch (error) {
     next(error)
   }
@@ -133,11 +139,9 @@ export const uploadImage = async (req, res, next) => {
       return next(errorHandler(400, "No file uploaded"))
     }
 
-    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${
-      req.file.filename
-    }`
-
+    const imageUrl = `${req.protocol}://${req.get("host")}/uploads/${req.file.filename}`
     res.status(200).json({ imageUrl })
+    
   } catch (error) {
     next(error)
   }

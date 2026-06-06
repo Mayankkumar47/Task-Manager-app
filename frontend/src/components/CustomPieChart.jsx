@@ -7,34 +7,49 @@ import {
   ResponsiveContainer,
   Legend,
 } from "recharts"
+import { motion } from "framer-motion"
 import CustomTooltip from "./CustomTooltip"
 import CustomLegend from "./CustomLegend"
 
 const CustomPieChart = ({ data, colors }) => {
   return (
-    <ResponsiveContainer width={"100%"} height={325}>
-      <PieChart>
-        <Pie
-          data={data}
-          cx={"50%"}
-          cy={"50%"}
-          labelLine={false}
-          outerRadius={130}
-          innerRadius={100}
-          fill="#8884d8"
-          dataKey="count"
-          nameKey={"status"}
-        >
-          {data?.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
-          ))}
-        </Pie>
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      className="bg-white p-4 rounded-2xl shadow border border-gray-100"
+    >
+      <ResponsiveContainer width="100%" height={300}>
+        <PieChart>
 
-        <Tooltip content={<CustomTooltip />} />
+          {/*  PIE */}
+          <Pie
+            data={data}
+            cx="50%"
+            cy="45%"
+            innerRadius={80}
+            outerRadius={110}
+            paddingAngle={4}
+            dataKey="count"
+            nameKey="status"
+          >
+            {data?.map((entry, index) => (
+              <Cell
+                key={index}
+                fill={colors[index % colors.length]}
+                stroke="#fff"
+                strokeWidth={2}
+              />
+            ))}
+          </Pie>
 
-        <Legend content={<CustomLegend />} />
-      </PieChart>
-    </ResponsiveContainer>
+          {/*  TOOLTIP */}
+          <Tooltip content={<CustomTooltip />} />
+
+          {/*  LEGEND */}
+          <Legend content={<CustomLegend />} />
+
+        </PieChart>
+      </ResponsiveContainer>
+    </motion.div>
   )
 }
 

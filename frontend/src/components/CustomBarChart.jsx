@@ -2,86 +2,103 @@ import React from "react"
 import {
   BarChart,
   Bar,
-  Rectangle,
   XAxis,
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
   ResponsiveContainer,
   Cell,
 } from "recharts"
+import { motion } from "framer-motion"
 
 const CustomBarChart = ({ data }) => {
-  // Fuction to alternate colors
+
+  //  Better color mapping
   const getBarColor = (entry) => {
     switch (entry?.priority) {
       case "Low":
-        return "#4CAF50"
-
+        return "#22c55e" // green
       case "Medium":
-        return "#FF9800"
-
+        return "#f59e0b" // orange
       case "High":
-        return "#F44336"
+        return "#ef4444" // red
       default:
-        return "4CAF50"
+        return "#22c55e"
     }
   }
 
+  //  Tooltip UI upgrade
   const CustomToolTip = ({ active, payload }) => {
     if (active && payload && payload.length) {
+      const item = payload[0].payload
+
       return (
-        <div className="bg-white p-2 shadow-md rounded-lg border border-gray-300">
-          <p className="text-xs font-semibold text-purple-800 mb-1">
-            {payload[0].payload.priority}
+        <div className="bg-white px-3 py-2 shadow-lg rounded-lg border border-gray-200">
+          <p className="text-xs font-semibold text-gray-500">
+            Priority
           </p>
 
-          <p className="text-sm text-gray-600">
+          <p className="text-sm font-medium text-gray-800">
+            {item.priority}
+          </p>
+
+          <p className="text-xs text-gray-500 mt-1">
             Count:{" "}
-            <span className="text-sm font-medium text-gray-900">
-              {payload[0].payload.count}
+            <span className="font-semibold text-gray-900">
+              {item.count}
             </span>
           </p>
         </div>
       )
     }
-
     return null
   }
 
   return (
-    <div className="bg-white mt-6">
-      <ResponsiveContainer width="100%" height={300}>
+    <motion.div
+      whileHover={{ scale: 1.01 }}
+      className="bg-white p-4 rounded-2xl shadow border border-gray-100"
+    >
+      <ResponsiveContainer width="100%" height={280}>
         <BarChart data={data}>
-          <CartesianGrid stroke="none" />
 
+          {/* Grid */}
+          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
+
+          {/* X Axis */}
           <XAxis
             dataKey="priority"
-            tick={{ fill: "#555", fontSize: 12 }}
-            stroke="none"
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            axisLine={false}
+            tickLine={false}
           />
 
-          <YAxis tick={{ fill: "#555", fontSize: 12 }} stroke="none" />
+          {/* Y Axis */}
+          <YAxis
+            tick={{ fill: "#6b7280", fontSize: 12 }}
+            axisLine={false}
+            tickLine={false}
+          />
 
+          {/* Tooltip */}
           <Tooltip
             content={<CustomToolTip />}
-            cursor={{ fill: "transparent" }}
+            cursor={{ fill: "#f9fafb" }}
           />
 
+          {/* Bars */}
           <Bar
             dataKey="count"
-            name={"priority"}
-            fill="#FF8042"
-            radius={[10, 10, 0, 0]}
+            radius={[8, 8, 0, 0]}
           >
             {data?.map((entry, index) => (
               <Cell key={index} fill={getBarColor(entry)} />
             ))}
           </Bar>
+
         </BarChart>
       </ResponsiveContainer>
-    </div>
+    </motion.div>
   )
 }
 

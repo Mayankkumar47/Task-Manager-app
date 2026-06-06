@@ -2,18 +2,21 @@ import React from "react"
 
 const CustomTooltip = ({ active, payload }) => {
   if (active && payload && payload.length) {
+    const item = payload[0]
+
     return (
-      <div className="bg-white p-2 shadow-md rounded-lg border border-gray-300">
-        <p className="text-xs font-semibold text-purple-800 mb-1">
-          {payload[0].name}
+      <div className="bg-white px-3 py-2 rounded-lg shadow-lg border border-gray-200">
+
+        {/*  Label */}
+        <p className="text-xs text-gray-500 font-medium">
+          {item.name}
         </p>
 
-        <p className="text-sm text-gray-600">
-          Count:{" "}
-          <span className="text-sm font-medium text-gray-900">
-            {payload[0].value}
-          </span>
+        {/*  Value */}
+        <p className="text-sm font-semibold text-gray-800 mt-1">
+          {item.value}
         </p>
+
       </div>
     )
   }

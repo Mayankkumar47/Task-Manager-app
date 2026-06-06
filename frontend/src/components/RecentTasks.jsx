@@ -1,99 +1,102 @@
-import moment from "moment"
 import React from "react"
+import moment from "moment"
 import { useNavigate } from "react-router-dom"
+import { motion } from "framer-motion"
 
-const RecentTasks = ({ tasks }) => {
+const RecentTasks = ({ tasks = [] }) => {
   const navigate = useNavigate()
 
+  const goToTask = (id) => {
+    // adjust route if needed (admin/user)
+    navigate(`/admin/task-details/${id}`)
+  }
+
+  const statusClass = (status) => {
+    if (status === "Completed") return "bg-green-100 text-green-700"
+    if (status === "Pending") return "bg-yellow-100 text-yellow-700"
+    return "bg-blue-100 text-blue-700"
+  }
+
+  const priorityClass = (p) => {
+    if (p === "High") return "bg-red-100 text-red-700"
+    if (p === "Medium") return "bg-orange-100 text-orange-700"
+    return "bg-gray-100 text-gray-700"
+  }
+
   return (
-    <div className="bg-white rounded-xl shadow-md overflow-hidden">
-      <div className="p-6 border-b border-gray-200 flex justify-between items-center">
-        <h3 className="text-lg font-semibold text-gray-800">Recent Tasks</h3>
+    <motion.div
+      whileHover={{ scale: 1.005 }}
+      className="bg-white rounded-2xl shadow border border-gray-100 overflow-hidden"
+    >
+      {/* Header */}
+      <div className="px-6 py-4 border-b flex items-center justify-between">
+        <h3 className="text-lg font-semibold text-gray-800">
+          Recent Tasks
+        </h3>
 
         <button
           onClick={() => navigate("/admin/tasks")}
-          className="text-blue-600 hover:text-blue-800 text-sm font-medium transition-colors p-2 bg-blue-50 hover:bg-blue-100"
+          className="text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition"
         >
-          See More →
+          See all →
         </button>
       </div>
 
-      <div className="p-6">
-        {tasks?.length > 0 ? (
+      {/* Body */}
+      <div className="p-4">
+        {tasks.length > 0 ? (
           <div className="overflow-x-auto">
-            <table className="min-w-full divide-y divide-gray-200">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Task Name
-                  </th>
-
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Priority
-                  </th>
-
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Created On
-                  </th>
+            <table className="min-w-full">
+              <thead>
+                <tr className="text-left text-xs uppercase text-gray-500">
+                  <th className="px-4 py-3">Task</th>
+                  <th className="px-4 py-3">Status</th>
+                  <th className="px-4 py-3">Priority</th>
+                  <th className="px-4 py-3">Created</th>
                 </tr>
               </thead>
 
-              <tbody className="bg-white divide-y divide-gray-200">
-                {tasks.map((task) => (
-                  <tr key={task._id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="text-sm font-medium text-gray-900">
-                        {task.title}
-                      </div>
+              <tbody>
+                {tasks.map((task, index) => (
+                  <motion.tr
+                    key={task._id}
+                    initial={{ opacity: 0, y: 5 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.05 }}
+                    onClick={() => goToTask(task._id)}
+                    className="cursor-pointer hover:bg-gray-50 transition"
+                  >
+                    <td className="px-4 py-3 text-sm font-medium text-gray-800">
+                      {task.title}
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          task.status === "Completed"
-                            ? "bg-green-100 text-green-800"
-                            : task.status === "Pending"
-                            ? "bg-yellow-100 text-yellow-800"
-                            : "bg-blue-100 text-blue-800"
-                        }`}
-                      >
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${statusClass(task.status)}`}>
                         {task.status}
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          task.priority === "High"
-                            ? "bg-red-100 text-red-800"
-                            : task.priority === "Medium"
-                            ? "bg-orange-100 text-orange-800"
-                            : "bg-gray-100 text-gray-800"
-                        }`}
-                      >
+                    <td className="px-4 py-3">
+                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${priorityClass(task.priority)}`}>
                         {task.priority}
                       </span>
                     </td>
 
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                    <td className="px-4 py-3 text-sm text-gray-500">
                       {moment(task.createdAt).format("MMM Do, YYYY")}
                     </td>
-                  </tr>
+                  </motion.tr>
                 ))}
               </tbody>
             </table>
           </div>
         ) : (
-          <p className="text-gray-500 text-center py-8">
-            No recent tasks found
+          <p className="text-center text-gray-500 py-10">
+            No recent tasks
           </p>
         )}
       </div>
-    </div>
+    </motion.div>
   )
 }
 

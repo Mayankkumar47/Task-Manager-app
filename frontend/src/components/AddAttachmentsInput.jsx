@@ -2,6 +2,7 @@ import React, { useState } from "react"
 import { ImAttachment } from "react-icons/im"
 import { IoMdAdd } from "react-icons/io"
 import { MdDelete } from "react-icons/md"
+import { motion } from "framer-motion"
 
 const AddAttachmentsInput = ({ attachments, setAttachments }) => {
   const [option, setOption] = useState("")
@@ -19,49 +20,56 @@ const AddAttachmentsInput = ({ attachments, setAttachments }) => {
   }
 
   return (
-    <div>
-      {attachments.map((item, index) => (
-        <div
-          key={item}
-          className="flex items-center justify-between bg-gray-50 border-gray-100 px-3 py-2 rounded-md mb-3 mt-2"
-        >
-          <div className="flex-1 flex items-center gap-3 border border-gray-100">
-            <ImAttachment className="text-gray-400" />
+    <div className="space-y-3">
 
-            <p className="text-sm text-black">{item}</p>
+      {/*  ATTACHMENT LIST */}
+      {attachments.map((item, index) => (
+        <motion.div
+          key={index}
+          whileHover={{ scale: 1.02 }}
+          className="flex items-center justify-between bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl"
+        >
+          <div className="flex items-center gap-3 flex-1">
+            <ImAttachment className="text-gray-400" />
+            <p className="text-sm text-gray-700 truncate">{item}</p>
           </div>
 
           <button
             type="button"
-            className="cursor-pointer"
             onClick={() => handleDeleteOption(index)}
+            className="text-red-500 hover:text-red-700 transition"
           >
-            <MdDelete className="text-lg text-red-500" />
+            <MdDelete className="text-lg" />
           </button>
-        </div>
+        </motion.div>
       ))}
 
-      <div className="flex items-center gap-5 mt-4">
-        <div className="flex-1 flex items-center gap-3 border border-gray-100 px-3 py-2 rounded-md ">
+      {/*  INPUT */}
+      <div className="flex items-center gap-3 mt-3">
+
+        <div className="flex items-center gap-3 flex-1 border border-gray-200 px-3 py-2 rounded-xl bg-white focus-within:ring-2 focus-within:ring-blue-500">
           <ImAttachment className="text-gray-400" />
 
           <input
             type="text"
-            placeholder="Add File Link"
+            placeholder="Paste attachment link..."
             value={option}
             onChange={(e) => setOption(e.target.value)}
-            className="w-full text-[13px] text-black outline-none bg-white border border-gray-300 px-3 py-2 rounded-md"
+            className="w-full text-sm outline-none bg-transparent"
           />
         </div>
 
-        <button
+        <motion.button
+          whileHover={{ scale: 1.05 }}
+          whileTap={{ scale: 0.95 }}
           type="button"
-          className="flex items-center gap-2 px-5 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md text-sm font-medium"
           onClick={handleAddOption}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm font-medium shadow hover:bg-blue-700"
         >
           <IoMdAdd className="text-lg" />
           Add
-        </button>
+        </motion.button>
+
       </div>
     </div>
   )

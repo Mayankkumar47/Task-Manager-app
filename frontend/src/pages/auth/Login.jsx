@@ -1,4 +1,4 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import AuthLayout from "../../components/AuthLayout"
 import { FaEyeSlash, FaPeopleGroup } from "react-icons/fa6"
 import { FaEye } from "react-icons/fa"
@@ -11,6 +11,7 @@ import {
   signInStart,
   signInSuccess,
 } from "../../redux/slice/userSlice"
+import { motion } from "framer-motion"
 
 const Login = () => {
   const navigate = useNavigate()
@@ -27,159 +28,149 @@ const Login = () => {
     e.preventDefault()
 
     if (!validateEmail(email)) {
-      setError("Please enter a valid email address")
+      setError("Please enter a valid email")
       return
     }
 
     if (!password) {
-      setError("Please enter the password")
+      setError("Password is required")
       return
     }
 
     setError(null)
 
-    // Login API call
     try {
       dispatch(signInStart())
 
-      const response = await axiosInstance.post(
+      const res = await axiosInstance.post(
         "/auth/sign-in",
-        {
-          email,
-          password,
-        },
-        {
-          withCredentials: true,
-        }
+        { email, password },
+        { withCredentials: true }
       )
 
-      // console.log(response.data)
+      dispatch(signInSuccess(res.data))
 
-      if (response.data.role === "admin") {
-        dispatch(signInSuccess(response.data))
+      if (res.data.role === "admin") {
         navigate("/admin/dashboard")
       } else {
-        dispatch(signInSuccess(response.data))
         navigate("/user/dashboard")
       }
-    } catch (error) {
-      if (error.response && error.response.data.message) {
-        setError(error.response.data.message)
-        dispatch(signInFailure(error.response.data.message))
-      } else {
-        setError("Something went wrong. Please try again!")
-        dispatch(signInFailure("Something went wrong. Please try again!"))
-      }
+
+    } catch (err) {
+      const msg =
+        err.response?.data?.message ||
+        "Login failed. Try again."
+
+      setError(msg)
+      dispatch(signInFailure(msg))
     }
   }
 
   return (
     <AuthLayout>
-      <div className="w-full max-w-md">
-        <div className="bg-white rounded-xl shadow-2xl overflow-hidden">
-          {/* Gradient top border */}
-          <div className="h-2 bg-gradient-to-r from-blue-600 to-blue-400"></div>
+      <motion.div
+        className="w-full max-w-md"
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+      >
 
-          <div className="p-8">
-            {/* Logo and title */}
-            <div className="text-center mb-8">
+        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
+
+          {/* Top bar */}
+          <div className="h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600" />
+
+          <div className="p-8 space-y-6">
+
+            {/* Logo */}
+            <div className="text-center">
               <div className="flex justify-center">
                 <div className="bg-blue-100 p-3 rounded-full">
-                  <FaPeopleGroup className="text-4xl text-blue-600" />
+                  <FaPeopleGroup className="text-3xl text-blue-600" />
                 </div>
               </div>
 
-              <h1 className="text-2xl font-bold text-gray-800 mt-4 uppercase">
-                Project Flow
+              <h1 className="text-2xl font-bold mt-3 text-gray-800">
+                TaskFlow
               </h1>
 
-              <p className="text-gray-600 mt-1">
-                Manage your projects efficiently
+              <p className="text-sm text-gray-500">
+                Manage your tasks efficiently
               </p>
             </div>
 
-            {/* Login Form */}
-            <form onSubmit={handleSubmit} className="space-y-6">
+            {/* FORM */}
+            <form onSubmit={handleSubmit} className="space-y-4">
+
+              {/* Email */}
               <div>
-                <label
-                  htmlFor="email"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
-                  Email Address
+                <label className="text-sm text-gray-600">
+                  Email
                 </label>
 
                 <input
-                  id="email"
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-                  placeholder="your@email.com"
-                  required
+                  className="w-full mt-1 px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                  placeholder="you@example.com"
                 />
               </div>
 
+              {/* Password */}
               <div>
-                <label
-                  htmlFor="password"
-                  className="block text-sm font-medium text-gray-700 mb-1"
-                >
+                <label className="text-sm text-gray-600">
                   Password
                 </label>
 
                 <div className="relative">
                   <input
-                    id="password"
                     type={showPassword ? "text" : "password"}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    className="w-full px-4 py-3 rounded-lg border border-gray-300 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent pr-12"
-                    placeholder="•••••••"
-                    required
+                    className="w-full mt-1 px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none pr-10"
+                    placeholder="••••••••"
                   />
 
                   <button
                     type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-500 hover:text-gray-700"
                     onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3 text-gray-400"
                   >
                     {showPassword ? <FaEyeSlash /> : <FaEye />}
                   </button>
                 </div>
               </div>
 
-              {error && <p className="text-red-500 text-sm">{error}</p>}
-
-              {loading ? (
-                <span className="animate-pulse w-full text-center bg-blue-600 text-white">
-                  Loading...
-                </span>
-              ) : (
-                <div>
-                  <button
-                    type="submit"
-                    className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-0 focus:ring-offset-0 cursor-pointer"
-                  >
-                    LOGIN
-                  </button>
+              {/* Error */}
+              {error && (
+                <div className="bg-red-100 text-red-600 text-sm px-3 py-2 rounded-lg">
+                  {error}
                 </div>
               )}
+
+              {/* Button */}
+              <motion.button
+                whileTap={{ scale: 0.97 }}
+                type="submit"
+                disabled={loading}
+                className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition"
+              >
+                {loading ? "Signing in..." : "Login"}
+              </motion.button>
+
             </form>
 
-            <div className="mt-6 text-center text-sm">
-              <p className="text-gray-600">
-                Don't have an accout?{" "}
-                <Link
-                  to={"/signup"}
-                  className="font-medium text-blue-600 hover:text-blue-500"
-                >
-                  Sign up
-                </Link>
-              </p>
-            </div>
+            {/* Footer */}
+            <p className="text-sm text-center text-gray-500">
+              Don’t have an account?{" "}
+              <Link to="/signup" className="text-blue-600 font-medium">
+                Sign up
+              </Link>
+            </p>
+
           </div>
         </div>
-      </div>
+      </motion.div>
     </AuthLayout>
   )
 }

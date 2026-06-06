@@ -1,33 +1,29 @@
 import React, { useEffect, useState } from "react"
-import axiosInstance from "../utils/axioInstance"
 import { FaUsers } from "react-icons/fa"
 import Modal from "./Modal"
 import AvatarGroup from "./AvatarGroup"
+import { motion } from "framer-motion"
+import axioInstance from "../utils/axioInstance"
 
 const SelectedUsers = ({ selectedUser, setSelectedUser }) => {
   const [allUsers, setAllUsers] = useState([])
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [tempSelectedUser, setTempSelectedUser] = useState([])
 
-  // console.log(allUsers)
-
   const getAllUsers = async () => {
     try {
-      const response = await axiosInstance.get("/users/get-users")
-
-      if (response.data?.length > 0) {
-        setAllUsers(response.data)
-      }
-    } catch (error) {
-      console.log("Error fetching users:", error)
+      const res = await axioInstance.get("/users/get-users")
+      setAllUsers(res.data || [])
+    } catch (err) {
+      console.log(err)
     }
   }
 
-  const toggleUserSelection = (userId) => {
+  const toggleUserSelection = (id) => {
     setTempSelectedUser((prev) =>
-      prev.includes(userId)
-        ? prev.filter((id) => id !== userId)
-        : [...prev, userId]
+      prev.includes(id)
+        ? prev.filter((i) => i !== id)
+        : [...prev, id]
     )
   }
 
@@ -37,87 +33,101 @@ const SelectedUsers = ({ selectedUser, setSelectedUser }) => {
   }
 
   const selectedUserAvatars = allUsers
-    .filter((user) => selectedUser.includes(user._id))
-    .map((user) => user.profileImageUrl)
+    .filter((u) => selectedUser.includes(u._id))
+    .map((u) => u.profileImageUrl || "https://res.cloudinary.com/dbli9atjv/image/upload/v1713535800/avatar.png")
 
   useEffect(() => {
     getAllUsers()
-
-    return () => {}
   }, [])
 
   useEffect(() => {
-    if (selectedUser.length === 0) {
-      setTempSelectedUser([])
-    }
-
-    return () => {}
+    if (selectedUser.length === 0) setTempSelectedUser([])
   }, [selectedUser])
 
   return (
-    <div className="space-y-4 mt-2">
-      {selectedUserAvatars.length === 0 && (
+    <div className="space-y-3">
+      {selectedUserAvatars.length === 0 ? (
         <button
-          onClick={() => setIsModalOpen(true)}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200 shadow-md"
           type="button"
+          onClick={() => setIsModalOpen(true)}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg shadow hover:bg-blue-700 transition"
         >
-          <FaUsers className="text-lg" /> Add Members
+          <FaUsers />
+          Add Members
         </button>
-      )}
-
-      {selectedUserAvatars.length > 0 && (
-        <div className="cursor-pointer" onClick={() => setIsModalOpen(true)}>
-          <AvatarGroup avatars={selectedUserAvatars} maxVisible={3} />
+      ) : (
+        <div
+          onClick={() => setIsModalOpen(true)}
+          className="cursor-pointer inline-block"
+        >
+          <AvatarGroup avatars={selectedUserAvatars} />
         </div>
       )}
 
       <Modal
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title={"Select User"}
+        title="Select Team Members"
       >
-        <div className="space-y-4 h-[60vh] overflow-y-auto">
-          {allUsers?.map((user) => (
-            <div
+        <div className="space-y-2 max-h-[60vh] overflow-y-auto pr-1">
+          {allUsers.map((user, index) => (
+            <motion.div
               key={user._id}
-              className="flex items-center gap-4 p-3 border-b border-gray-300"
+              initial={{ opacity: 0, y: 5 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: index * 0.03 }}
+              className={`flex items-center gap-3 p-3 rounded-lg border cursor-pointer transition-colors
+                ${
+                  tempSelectedUser.includes(user._id)
+                    ? "bg-blue-50 border-blue-200"
+                    : "hover:bg-gray-50 border-gray-100"
+                }`}
+              onClick={() => toggleUserSelection(user._id)}
             >
               <img
-                src={user?.profileImageUrl}
-                alt={user?.name}
-                className="w-10 h-10 rounded-full"
+                src={user.profileImageUrl || "https://res.cloudinary.com/dbli9atjv/image/upload/v1713535800/avatar.png"}
+                alt={user.name}
+                className="w-9 h-9 rounded-full object-cover bg-gray-100"
+                onError={(e) => {
+                  e.target.onerror = null;
+                  e.target.src = "https://res.cloudinary.com/dbli9atjv/image/upload/v1713535800/avatar.png";
+                }}
               />
 
-              <div className="flex-1">
-                <p className="font-medium text-gray-800">{user?.name}</p>
-
-                <p className="text-[13px] text-gray-500">{user?.email}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-medium text-gray-800 truncate">
+                  {user.name}
+                </p>
+                <p className="text-xs text-gray-500 truncate">
+                  {user.email}
+                </p>
               </div>
 
               <input
                 type="checkbox"
                 checked={tempSelectedUser.includes(user._id)}
                 onChange={() => toggleUserSelection(user._id)}
-                className="w-4 h-4 text-primary bg-gray-100 border-gray-300 rounded-sm outline-none"
+                className="w-4 h-4 rounded text-blue-600 focus:ring-blue-500"
+                onClick={(e) => e.stopPropagation()}
               />
-            </div>
+            </motion.div>
           ))}
         </div>
 
-        <div className="flex justify-end gap-4 pt-4">
+        <div className="flex justify-end gap-3 pt-4 border-t mt-4">
           <button
-            className="px-4 py-2 bg-gray-100 hover:bg-gray-200 text-gray-900 rounded-md transition-colors duration-200"
+            type="button"
             onClick={() => setIsModalOpen(false)}
+            className="px-4 py-2 text-sm rounded-lg border hover:bg-gray-100 transition-colors"
           >
-            CANCEL
+            Cancel
           </button>
-
           <button
-            className="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors duration-200"
+            type="button"
             onClick={handleAssign}
+            className="px-4 py-2 text-sm rounded-lg bg-blue-600 text-white hover:bg-blue-700 transition-colors shadow-sm"
           >
-            DONE
+            Done
           </button>
         </div>
       </Modal>

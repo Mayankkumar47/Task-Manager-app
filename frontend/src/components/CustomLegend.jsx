@@ -1,20 +1,26 @@
 import React from "react"
-
 const CustomLegend = ({ payload }) => {
   return (
-    <div className="flex flex-wrap gap-2 justify-center mt-4 space-x-6">
-      {payload?.map((entry, index) => (
-        <div className="flex items-center space-x-2" key={`legend-${index}`}>
-          <div
-            className="w-2.5 h-2.5 rounded-full"
-            style={{ backgroundColor: entry.color }}
-          ></div>
+    <div className="flex flex-wrap justify-center gap-4 mt-4">
 
-          <span className="text-xs text-gray-700 font-medium">
+      {payload?.map((entry, index) => (
+        <div
+          key={`legend-${index}`}
+          className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-gray-50 border border-gray-100 shadow-sm hover:bg-gray-100 transition"
+        >
+          {/*  Color Dot */}
+          <div
+            className="w-3 h-3 rounded-full"
+            style={{ backgroundColor: entry.color }}
+          />
+
+          {/*  Label */}
+          <span className="text-xs font-medium text-gray-700">
             {entry.value}
           </span>
         </div>
       ))}
+
     </div>
   )
 }

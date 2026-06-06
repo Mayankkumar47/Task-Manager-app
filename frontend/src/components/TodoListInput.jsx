@@ -1,8 +1,9 @@
-import React, { useState } from "react"
+import { useState } from "react"
 import { IoMdAdd } from "react-icons/io"
 import { MdDelete } from "react-icons/md"
+import { motion } from "framer-motion"
 
-const TodoListInput = ({ todoList, setTodoList }) => {
+const TodoListInput = ({ todoList = [], setTodoList }) => {
   const [option, setOption] = useState("")
 
   const handleAddOption = () => {
@@ -13,52 +14,60 @@ const TodoListInput = ({ todoList, setTodoList }) => {
   }
 
   const handleDeleteOption = (index) => {
-    const updatedArray = todoList.filter((_, i) => i !== index)
-    setTodoList(updatedArray)
+    setTodoList(todoList.filter((_, i) => i !== index))
   }
 
   return (
-    <div>
+    <div className="space-y-3">
+
+      {/*  LIST */}
       {todoList.map((item, index) => (
-        <div
-          key={item}
-          className="flex items-center justify-between bg-gray-50 border-gray-100 px-3 py-2 rounded-md mb-3 mt-2"
+        <motion.div
+          key={index}
+          whileHover={{ scale: 1.01 }}
+          className="flex items-center justify-between bg-gray-50 border border-gray-100 px-4 py-3 rounded-xl"
         >
-          <p className="text-sm text-black">
-            <span className="text-sm text-gray-400 font-semibold mr-2">
+          <p className="text-sm text-gray-700 flex items-center gap-2">
+            <span className="text-xs text-gray-400 font-semibold">
               {index < 9 ? `0${index + 1}` : index + 1}
             </span>
             {item}
           </p>
 
           <button
-            type="button"
-            className="cursor-pointer"
             onClick={() => handleDeleteOption(index)}
+            className="text-red-500 hover:text-red-700 transition"
           >
-            <MdDelete className="text-lg text-red-500" />
+            <MdDelete />
           </button>
-        </div>
+        </motion.div>
       ))}
 
-      <div className="flex items-center gap-5 mt-4">
+      {/*  INPUT */}
+      <div className="flex gap-3">
+
         <input
           type="text"
-          placeholder="Add a new task"
+          placeholder="Add a new task..."
           value={option}
           onChange={(e) => setOption(e.target.value)}
-          className="w-full text-[13px] text-black outline-none bg-white border border-gray-300 px-3 py-2 rounded-md"
+          onKeyDown={(e) => {
+            if (e.key === "Enter") handleAddOption()
+          }}
+          className="flex-1 px-3 py-2 border border-gray-200 rounded-xl text-sm focus:ring-2 focus:ring-blue-500 outline-none"
         />
 
-        <button
-          type="button"
-          className="flex items-center gap-2 px-5 py-2 bg-blue-500 hover:bg-blue-700 text-white rounded-md text-sm font-medium"
+        <motion.button
+          whileTap={{ scale: 0.95 }}
           onClick={handleAddOption}
+          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-xl text-sm shadow hover:bg-blue-700"
         >
-          <IoMdAdd className="text-base" />
+          <IoMdAdd />
           Add
-        </button>
+        </motion.button>
+
       </div>
+
     </div>
   )
 }

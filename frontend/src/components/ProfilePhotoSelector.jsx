@@ -1,20 +1,19 @@
-import React, { useRef, useState } from "react"
+import React from "react"
+import { useRef, useState } from "react"
 import { FaCamera } from "react-icons/fa"
 import { MdDelete } from "react-icons/md"
+import { motion } from "framer-motion"
 
 const ProfilePhotoSelector = ({ image, setImage }) => {
   const inputRef = useRef(null)
   const [previewUrl, setPreviewUrl] = useState(null)
 
-  const handleImageChange = (event) => {
-    const file = event.target.files[0]
+  const handleImageChange = (e) => {
+    const file = e.target.files[0]
 
     if (file) {
       setImage(file)
-
-      const preview = URL.createObjectURL(file)
-
-      setPreviewUrl(preview)
+      setPreviewUrl(URL.createObjectURL(file))
     }
   }
 
@@ -29,41 +28,41 @@ const ProfilePhotoSelector = ({ image, setImage }) => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="relative mb-4">
-        <div
-          className="w-24 h-24 rounded-full bg-gray-200 flex items-center justify-center overflow-hidden cursor-pointer border-2 border-gray-300 hover:border-blue-500 transition-all"
+
+      <div className="relative">
+
+        {/*  Avatar */}
+        <motion.div
+          whileHover={{ scale: 1.05 }}
+          className="w-24 h-24 rounded-full bg-gray-100 border-2 border-gray-200 overflow-hidden flex items-center justify-center cursor-pointer shadow-sm"
           onClick={onChooseFile}
         >
           {previewUrl ? (
             <img
               src={previewUrl}
-              alt="profile pic"
+              alt="profile"
               className="w-full h-full object-cover"
             />
           ) : (
             <FaCamera className="text-3xl text-gray-400" />
           )}
-        </div>
+        </motion.div>
 
-        {!image ? (
-          <button
-            type="button"
-            className="absolute -bottom-2 -right-2 bg-blue-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
-            onClick={onChooseFile}
-          >
-            <FaCamera className="text-sm" />
-          </button>
-        ) : (
-          <button
-            type="button"
-            className="absolute -bottom-2 -right-2 bg-red-500 text-white p-2 rounded-full hover:bg-blue-600 transition-colors"
-            onClick={handleRemoveImage}
-          >
-            <MdDelete className="text-sm" />
-          </button>
-        )}
+        {/*  Action Button */}
+        <motion.button
+          whileTap={{ scale: 0.9 }}
+          type="button"
+          onClick={image ? handleRemoveImage : onChooseFile}
+          className={`absolute -bottom-2 -right-2 p-2 rounded-full shadow text-white
+            ${image ? "bg-red-500 hover:bg-red-600" : "bg-blue-500 hover:bg-blue-600"}
+          `}
+        >
+          {image ? <MdDelete size={14} /> : <FaCamera size={14} />}
+        </motion.button>
+
       </div>
 
+      {/*  Hidden Input */}
       <input
         type="file"
         ref={inputRef}
@@ -71,6 +70,7 @@ const ProfilePhotoSelector = ({ image, setImage }) => {
         accept="image/*"
         className="hidden"
       />
+
     </div>
   )
 }
