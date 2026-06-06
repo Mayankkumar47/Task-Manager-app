@@ -4,17 +4,18 @@ import dotenv from "dotenv"
 import mongoose from "mongoose"
 import cookieParser from "cookie-parser"
 import path from "path"
+import { fileURLToPath } from "url"
+import dns from 'node:dns/promises'
 
 import authRoutes from "./routes/auth.route.js"
 import userRoutes from "./routes/user.route.js"
 import taskRoutes from "./routes/task.route.js"
 import reportRoutes from "./routes/report.route.js"
-import { fileURLToPath } from "url"
-import dns from 'node:dns/promises';
-dns.setServers(['8.8.8.8', '1.1.1.1']); // Keep this if it helps your internet connection
+import aiRoutes from "./routes/ai.route.js"
+
+dns.setServers(['8.8.8.8', '1.1.1.1'])
 
 dotenv.config()
-
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -30,7 +31,7 @@ mongoose
 
 const app = express()
 
-// Middleware to handle cors
+// 1. Core Global Middleware (Must sit above routes)
 app.use(
   cors({
     origin: process.env.FRONT_END_URL,
@@ -38,27 +39,22 @@ app.use(
     credentials: true,
   })
 )
-
-// Middleware to handle JSON object in req body
 app.use(express.json())
-
 app.use(cookieParser())
 
-app.listen(3000, () => {
-  console.log("Server is running on port 3000!")
-})
+// 2. Static Asset Folders
+app.use("/uploads", express.static(path.join(__dirname, "uploads")))
 
+// 3. API Core Route Definitions
 app.use("/api/auth", authRoutes)
 app.use("/api/users", userRoutes)
 app.use("/api/tasks", taskRoutes)
 app.use("/api/reports", reportRoutes)
+app.use("/api/ai", aiRoutes)
 
-// serve static files from "uploads" folder
-app.use("/uploads", express.static(path.join(__dirname, "uploads")))
-
+// 4. Centralized Error Interceptor Block
 app.use((err, req, res, next) => {
   const statusCode = err.statusCode || 500
-
   const message = err.message || "Internal Server Error"
 
   res.status(statusCode).json({
@@ -66,4 +62,8 @@ app.use((err, req, res, next) => {
     statusCode,
     message,
   })
+})
+
+app.listen(3000, () => {
+  console.log("Server is running on port 3000!")
 })

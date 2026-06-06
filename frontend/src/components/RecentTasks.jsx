@@ -1,103 +1,100 @@
-import React from "react"
-import moment from "moment"
-import { useNavigate } from "react-router-dom"
-import { motion } from "framer-motion"
+import React from "react";
+import { motion } from "framer-motion";
+import moment from "moment";
 
-const RecentTasks = ({ tasks = [] }) => {
-  const navigate = useNavigate()
+const RecentTasks = ({ tasks }) => {
+  // Color configuration mapper for quick systemic state scans
+  const getStatusStyles = (status) => {
+    switch (status) {
+      case "Completed":
+        return {
+          bg: "bg-emerald-500/10 border-emerald-500/30",
+          text: "text-emerald-400",
+          glow: "shadow-emerald-500/5"
+        };
+      case "InProgress":
+      case "In Progress":
+        return {
+          bg: "bg-cyan-500/10 border-cyan-500/30",
+          text: "text-cyan-400",
+          glow: "shadow-cyan-500/5"
+        };
+      default:
+        return {
+          bg: "bg-amber-500/10 border-amber-500/30",
+          text: "text-amber-400",
+          glow: "shadow-amber-500/5"
+        };
+    }
+  };
 
-  const goToTask = (id) => {
-    // adjust route if needed (admin/user)
-    navigate(`/admin/task-details/${id}`)
-  }
-
-  const statusClass = (status) => {
-    if (status === "Completed") return "bg-green-100 text-green-700"
-    if (status === "Pending") return "bg-yellow-100 text-yellow-700"
-    return "bg-blue-100 text-blue-700"
-  }
-
-  const priorityClass = (p) => {
-    if (p === "High") return "bg-red-100 text-red-700"
-    if (p === "Medium") return "bg-orange-100 text-orange-700"
-    return "bg-gray-100 text-gray-700"
-  }
+  const getPriorityBadge = (priority) => {
+    const p = priority?.toLowerCase();
+    if (p === "high") return "bg-red-500/20 text-red-400 border-red-500/30";
+    if (p === "medium") return "bg-amber-500/20 text-amber-400 border-amber-500/30";
+    return "bg-slate-800 text-slate-400 border-slate-700";
+  };
 
   return (
-    <motion.div
-      whileHover={{ scale: 1.005 }}
-      className="bg-white rounded-2xl shadow border border-gray-100 overflow-hidden"
-    >
-      {/* Header */}
-      <div className="px-6 py-4 border-b flex items-center justify-between">
-        <h3 className="text-lg font-semibold text-gray-800">
-          Recent Tasks
-        </h3>
+    <div className="space-y-3 max-h-[400px] overflow-y-auto pr-2 custom-scrollbar">
+      {tasks?.map((task, index) => {
+        const stateStyle = getStatusStyles(task.status);
+        
+        return (
+          <motion.div
+            key={task._id || index}
+            initial={{ opacity: 0, x: -10 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ delay: index * 0.05 }}
+            whileHover={{ x: 4, backgroundColor: "rgba(30, 41, 59, 0.3)" }}
+            className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/40 backdrop-blur-md border border-slate-800/80 shadow-lg ${stateStyle.glow} transition-all`}
+          >
+            {/* Left Side: Title and Core Meta Details */}
+            <div className="space-y-1.5 flex-1">
+              <div className="flex flex-wrap items-center gap-2">
+                <h4 className="text-sm font-semibold text-slate-100 tracking-wide line-clamp-1">
+                  {task.title}
+                </h4>
+                
+                <span className={`text-[9px] font-mono px-2 py-0.5 rounded border uppercase tracking-wider ${getPriorityBadge(task.priority)}`}>
+                  {task.priority || "Medium"}
+                </span>
+              </div>
 
-        <button
-          onClick={() => navigate("/admin/tasks")}
-          className="text-sm font-medium text-blue-600 hover:text-blue-700 px-3 py-1.5 rounded-lg hover:bg-blue-50 transition"
-        >
-          See all →
-        </button>
-      </div>
+              {task.description && (
+                <p className="text-xs text-slate-400 line-clamp-1 font-normal max-w-xl">
+                  {task.description}
+                </p>
+              )}
 
-      {/* Body */}
-      <div className="p-4">
-        {tasks.length > 0 ? (
-          <div className="overflow-x-auto">
-            <table className="min-w-full">
-              <thead>
-                <tr className="text-left text-xs uppercase text-gray-500">
-                  <th className="px-4 py-3">Task</th>
-                  <th className="px-4 py-3">Status</th>
-                  <th className="px-4 py-3">Priority</th>
-                  <th className="px-4 py-3">Created</th>
-                </tr>
-              </thead>
+              {/* Tag Badges Array */}
+              {task.tags && task.tags.length > 0 && (
+                <div className="flex flex-wrap gap-1.5 pt-0.5">
+                  {task.tags.map((tag, i) => (
+                    <span key={i} className="text-[10px] font-mono text-cyan-400/90">
+                      #{tag.toLowerCase()}
+                    </span>
+                  ))}
+                </div>
+              )}
+            </div>
 
-              <tbody>
-                {tasks.map((task, index) => (
-                  <motion.tr
-                    key={task._id}
-                    initial={{ opacity: 0, y: 5 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: index * 0.05 }}
-                    onClick={() => goToTask(task._id)}
-                    className="cursor-pointer hover:bg-gray-50 transition"
-                  >
-                    <td className="px-4 py-3 text-sm font-medium text-gray-800">
-                      {task.title}
-                    </td>
+            {/* Right Side: Status Trackers and Timestamps */}
+            <div className="flex sm:flex-col items-gether items-start sm:items-end justify-between sm:justify-center gap-2 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-800/60">
+              <span className={`text-[10px] font-mono font-bold uppercase tracking-widest px-3 py-1 rounded-md border ${stateStyle.bg} ${stateStyle.text}`}>
+                {task.status}
+              </span>
+              
+              <span className="text-[10px] font-mono text-slate-500">
+                {task.dueDate ? moment(task.dueDate).format("MMM DD, YYYY") : moment(task.createdAt).format("MMM DD, YYYY")}
+              </span>
+            </div>
 
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${statusClass(task.status)}`}>
-                        {task.status}
-                      </span>
-                    </td>
+          </motion.div>
+        );
+      })}
+    </div>
+  );
+};
 
-                    <td className="px-4 py-3">
-                      <span className={`px-2 py-1 text-xs rounded-full font-medium ${priorityClass(task.priority)}`}>
-                        {task.priority}
-                      </span>
-                    </td>
-
-                    <td className="px-4 py-3 text-sm text-gray-500">
-                      {moment(task.createdAt).format("MMM Do, YYYY")}
-                    </td>
-                  </motion.tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        ) : (
-          <p className="text-center text-gray-500 py-10">
-            No recent tasks
-          </p>
-        )}
-      </div>
-    </motion.div>
-  )
-}
-
-export default RecentTasks
+export default RecentTasks;

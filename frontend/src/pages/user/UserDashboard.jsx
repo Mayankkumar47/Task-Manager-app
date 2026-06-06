@@ -7,8 +7,10 @@ import RecentTasks from "../../components/RecentTasks"
 import CustomPieChart from "../../components/CustomPieChart"
 import CustomBarChart from "../../components/CustomBarChart"
 import { motion } from "framer-motion"
+import AiTaskInput from "../../components/AiTaskInput" 
+import KanbanBoard from "../../components/KanbanBoard"
 
-const COLORS = ["#FF6384", "#36A2EB", "#FFCE56"]
+const COLORS = ["#38bdf8", "#3b82f6", "#10b981"] // Premium neon palette accents: Cyan, Blue, Emerald
 
 const UserDashboard = () => {
   const { currentUser } = useSelector((state) => state.user)
@@ -50,19 +52,35 @@ const UserDashboard = () => {
     }
   }
 
+  const handleTaskMovedLocally = (taskId, newStatus) => {
+    setDashboardData((prev) => {
+      if (!prev) return prev
+
+      const updatedRecentTasks = prev.recentTasks.map((task) =>
+        task._id === taskId ? { ...task, status: newStatus } : task
+      )
+
+      return {
+        ...prev,
+        recentTasks: updatedRecentTasks,
+      }
+    })
+    getDashboardData()
+  }
+
   useEffect(() => {
     getDashboardData()
   }, [])
 
-  // LOADING UI
+  // PREMIUM DARK MODAL LOADING SKELETON
   if (loading) {
     return (
       <DashboardLayout>
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-4 p-6">
+        <div className="bg-slate-950 min-h-screen p-6 grid grid-cols-1 md:grid-cols-4 gap-4">
           {[...Array(4)].map((_, i) => (
-            <div key={i} className="bg-white p-5 rounded-2xl shadow animate-pulse">
-              <div className="h-4 bg-gray-300 rounded w-1/2 mb-3"></div>
-              <div className="h-8 bg-gray-300 rounded w-1/3"></div>
+            <div key={i} className="bg-slate-900/50 border border-slate-800/80 p-5 rounded-2xl shadow-2xl animate-pulse">
+              <div className="h-4 bg-slate-800 rounded w-1/2 mb-3"></div>
+              <div className="h-8 bg-slate-800 rounded w-1/3"></div>
             </div>
           ))}
         </div>
@@ -72,87 +90,90 @@ const UserDashboard = () => {
 
   return (
     <DashboardLayout activeMenu={"Dashboard"}>
+      {/* Container wrapper injected with deep ambient workspace aesthetics */}
       <motion.div
-        className="p-6 space-y-8"
+        className="min-h-screen bg-slate-950 text-slate-100 p-6 space-y-8 selection:bg-cyan-500 selection:text-slate-950"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
       >
-
-        {/*  HEADER */}
-        <div className="bg-gradient-to-r from-blue-500 via-blue-600 to-indigo-600 rounded-2xl p-6 shadow text-white">
-          <h2 className="text-2xl md:text-3xl font-bold tracking-tight">
+        
+        {/* HEADER BLOCK - Premium Glossy Horizon Layout */}
+        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-6 border border-blue-500/20 shadow-2xl shadow-blue-500/5">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+          <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
             Welcome back, {currentUser?.name} 👋
           </h2>
-          <p className="text-blue-100 mt-1 text-sm">
+          <p className="text-cyan-400/80 font-mono mt-1 text-xs uppercase tracking-wider">
             {moment().format("dddd, Do MMM YYYY")}
           </p>
         </div>
 
-        {/*  OVERVIEW */}
+        {/* FUTURISTIC AI ENGINE INTERFACE */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-3">
-            Overview
+          <AiTaskInput onTaskCreated={getDashboardData} />
+        </div>
+
+        {/* OVERVIEW SECTION - Matte Glass Stat Grid */}
+        <div>
+          <h3 className="text-xs font-bold font-mono text-slate-400 uppercase tracking-widest mb-4">
+            System Overview
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-
             {[
-              ["Total Tasks", dashboardData?.charts?.taskDistribution?.All, "blue"],
-              ["Pending", dashboardData?.charts?.taskDistribution?.Pending, "yellow"],
-              ["In Progress", dashboardData?.charts?.taskDistribution?.InProgress, "green"],
-              ["Completed", dashboardData?.charts?.taskDistribution?.Completed, "red"],
-            ].map(([title, value, color], i) => (
+              ["Total Tasks", dashboardData?.charts?.taskDistribution?.All, "from-blue-500/20 to-transparent", "border-blue-500/30", "text-blue-400"],
+              ["Pending", dashboardData?.charts?.taskDistribution?.Pending, "from-amber-500/20 to-transparent", "border-amber-500/30", "text-amber-400"],
+              ["In Progress", dashboardData?.charts?.taskDistribution?.InProgress, "from-cyan-500/20 to-transparent", "border-cyan-500/30", "text-cyan-400"],
+              ["Completed", dashboardData?.charts?.taskDistribution?.Completed, "from-emerald-500/20 to-transparent", "border-emerald-500/30", "text-emerald-400"],
+            ].map(([title, value, colorGrad, boundaryColor, textTint], i) => (
               <motion.div
                 key={i}
-                whileHover={{ scale: 1.05 }}
-                className={`p-5 rounded-2xl shadow border border-gray-100 bg-${color}-50`}
+                whileHover={{ scale: 1.03, y: -2 }}
+                className={`p-5 rounded-2xl bg-gradient-to-br ${colorGrad} bg-slate-900/40 backdrop-blur-md border ${boundaryColor} shadow-xl`}
               >
-                <p className={`text-sm text-${color}-600`}>{title}</p>
-                <h2 className="text-3xl font-bold mt-1 text-gray-800">
+                <p className={`text-xs font-mono font-medium uppercase tracking-wider ${textTint}`}>{title}</p>
+                <h2 className="text-3xl font-black mt-2 text-white font-mono tracking-tight">
                   {value || 0}
                 </h2>
               </motion.div>
             ))}
-
           </div>
         </div>
 
-        {/*  ANALYTICS */}
+        {/* ANALYTICS SECTION - Neon Embedded Charts */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-3">
-            Analytics
+          <h3 className="text-xs font-bold font-mono text-slate-400 uppercase tracking-widest mb-4">
+            Telemetry Performance
           </h3>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-            <motion.div whileHover={{ scale: 1.02 }} className="bg-white p-6 rounded-2xl shadow">
-              <h4 className="font-medium mb-3">Task Distribution</h4>
+            <motion.div whileHover={{ scale: 1.01 }} className="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 p-6 rounded-2xl shadow-2xl">
+              <h4 className="text-sm font-semibold text-slate-300 mb-4 tracking-wide">Task Volume Allocation</h4>
               <CustomPieChart data={pieChartData} colors={COLORS} />
             </motion.div>
 
-            <motion.div whileHover={{ scale: 1.02 }} className="bg-white p-6 rounded-2xl shadow">
-              <h4 className="font-medium mb-3">Task Priority</h4>
+            <motion.div whileHover={{ scale: 1.01 }} className="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 p-6 rounded-2xl shadow-2xl">
+              <h4 className="text-sm font-semibold text-slate-300 mb-4 tracking-wide">Task Priority Metrics</h4>
               <CustomBarChart data={barChartData} />
             </motion.div>
-
           </div>
         </div>
 
-        {/*  RECENT TASKS */}
+        {/* INTERACTIVE WORKSPACE MONITOR TRACKER */}
         <div>
-          <h3 className="text-lg font-semibold text-gray-700 mb-3">
-            Recent Tasks
+          <h3 className="text-xs font-bold font-mono text-slate-400 uppercase tracking-widest mb-4">
+            Task Workflow Pipeline
           </h3>
-
-          <div className="bg-white p-6 rounded-2xl shadow">
-            {dashboardData?.recentTasks?.length === 0 ? (
-              <p className="text-gray-500 text-center py-6">
-                No tasks yet. Start working 🚀
-              </p>
-            ) : (
-              <RecentTasks tasks={dashboardData?.recentTasks} />
-            )}
-          </div>
+          {dashboardData?.recentTasks?.length === 0 ? (
+            <div className="bg-slate-900/30 border border-dashed border-slate-800 p-8 rounded-2xl text-center text-slate-500 font-medium text-sm py-12">
+              No running database entities found. Initialize a workspace task using the interface matrix above. 🚀
+            </div>
+          ) : (
+            <KanbanBoard 
+              tasks={dashboardData?.recentTasks} 
+              onTaskMoved={handleTaskMovedLocally} 
+            />
+          )}
         </div>
 
       </motion.div>

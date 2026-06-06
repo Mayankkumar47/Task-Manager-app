@@ -1,82 +1,31 @@
-import React, { useState } from "react"
-import { MdClose, MdMenu } from "react-icons/md"
-import { motion, AnimatePresence } from "framer-motion"
-import SideMenu from "./SideMenu"
+import React from "react";
+import { useSelector } from "react-redux";
 
-const Navbar = ({ activeMenu }) => {
-  const [openSideMenu, setOpenSideMenu] = useState(false)
+const Navbar = () => {
+  const { currentUser } = useSelector((state) => state.user);
 
   return (
-    <>
-      {/*  NAVBAR */}
-      <div className="bg-white shadow-sm sticky top-0 z-30 px-6 py-3 flex items-center justify-between">
-
-        {/* Left */}
-        <div className="flex items-center gap-4">
-          <button
-            className="p-2 rounded-lg text-gray-600 hover:bg-gray-100 lg:hidden transition"
-            onClick={() => setOpenSideMenu(!openSideMenu)}
-          >
-            {openSideMenu ? (
-              <MdClose className="text-2xl" />
-            ) : (
-              <MdMenu className="text-2xl" />
-            )}
-          </button>
-
-          {/*  APP NAME */}
-          <h2 className="text-lg md:text-xl font-semibold text-gray-800 tracking-tight">
-            TaskFlow
-          </h2>
-        </div>
-
-        {/* Right */}
-        <div className="hidden md:flex items-center gap-4">
-          <span className="text-sm text-gray-500">
-            Manage your tasks efficiently
-          </span>
-        </div>
+    <header className="w-full bg-slate-950/80 backdrop-blur-md border-b border-slate-800/80 px-6 py-4 flex items-center justify-between">
+      {/* System Status Node */}
+      <div className="flex items-center gap-2">
+        <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+        <span className="text-[10px] font-mono tracking-widest uppercase text-slate-400">
+          Core Cluster Operational
+        </span>
       </div>
 
-      {/*  MOBILE SIDEBAR WITH ANIMATION */}
-      <AnimatePresence>
-        {openSideMenu && (
-          <motion.div
-            className="fixed inset-0 z-40 flex lg:hidden"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-          >
-            {/* Overlay */}
-            <div
-              className="absolute inset-0 bg-black/30"
-              onClick={() => setOpenSideMenu(false)}
-            />
+      {/* Profile Section */}
+      <div className="flex items-center gap-3 bg-slate-900/60 border border-slate-800 px-3 py-1.5 rounded-xl">
+        <div className="text-right">
+          <p className="text-xs font-bold text-slate-200">{currentUser?.name || "Sonam"}</p>
+          <p className="text-[10px] font-mono text-slate-500">{currentUser?.email || "user@node.io"}</p>
+        </div>
+        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-cyan-500 to-blue-600 flex items-center justify-center text-white font-black text-sm shadow-md shadow-cyan-500/10">
+          {currentUser?.name ? currentUser.name.charAt(0).toUpperCase() : "S"}
+        </div>
+      </div>
+    </header>
+  );
+};
 
-            {/* Sidebar */}
-            <motion.div
-              initial={{ x: -300 }}
-              animate={{ x: 0 }}
-              exit={{ x: -300 }}
-              transition={{ duration: 0.3 }}
-              className="relative z-50 w-72 h-full bg-white shadow-xl"
-            >
-              <button
-                className="absolute top-4 right-4 p-2 rounded-md text-gray-600 hover:bg-gray-100 transition"
-                onClick={() => setOpenSideMenu(false)}
-              >
-                <MdClose className="text-2xl" />
-              </button>
-
-              <div className="pt-16">
-                <SideMenu activeMenu={activeMenu} />
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </>
-  )
-}
-
-export default Navbar
+export default Navbar;

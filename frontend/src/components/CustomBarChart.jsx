@@ -1,105 +1,66 @@
-import React from "react"
-import {
-  BarChart,
-  Bar,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-  Cell,
-} from "recharts"
-import { motion } from "framer-motion"
+import React from "react";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 
 const CustomBarChart = ({ data }) => {
-
-  //  Better color mapping
-  const getBarColor = (entry) => {
-    switch (entry?.priority) {
-      case "Low":
-        return "#22c55e" // green
-      case "Medium":
-        return "#f59e0b" // orange
-      case "High":
-        return "#ef4444" // red
-      default:
-        return "#22c55e"
-    }
-  }
-
-  //  Tooltip UI upgrade
-  const CustomToolTip = ({ active, payload }) => {
-    if (active && payload && payload.length) {
-      const item = payload[0].payload
-
-      return (
-        <div className="bg-white px-3 py-2 shadow-lg rounded-lg border border-gray-200">
-          <p className="text-xs font-semibold text-gray-500">
-            Priority
-          </p>
-
-          <p className="text-sm font-medium text-gray-800">
-            {item.priority}
-          </p>
-
-          <p className="text-xs text-gray-500 mt-1">
-            Count:{" "}
-            <span className="font-semibold text-gray-900">
-              {item.count}
-            </span>
-          </p>
-        </div>
-      )
-    }
-    return null
-  }
-
   return (
-    <motion.div
-      whileHover={{ scale: 1.01 }}
-      className="bg-white p-4 rounded-2xl shadow border border-gray-100"
-    >
-      <ResponsiveContainer width="100%" height={280}>
-        <BarChart data={data}>
+    <div className="w-full h-[300px] bg-slate-950/40 p-2 rounded-xl">
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={data} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
+          {/* Injecting custom SVG Gradients and Neon Filters */}
+          <defs>
+            <linearGradient id="barGradient" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0%" stopColor="#38bdf8" stopOpacity={1} />
+              <stop offset="100%" stopColor="#3b82f6" stopOpacity={0.2} />
+            </linearGradient>
+            <filter id="glow">
+              <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
+              <feMerge>
+                <feMergeNode in="coloredBlur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
 
-          {/* Grid */}
-          <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-
-          {/* X Axis */}
-          <XAxis
-            dataKey="priority"
-            tick={{ fill: "#6b7280", fontSize: 12 }}
-            axisLine={false}
+          <CartesianGrid strokeDasharray="3 3" stroke="#1e293b" vertical={false} />
+          <XAxis 
+            dataKey="priority" 
+            stroke="#94a3b8" 
+            fontSize={12} 
             tickLine={false}
-          />
-
-          {/* Y Axis */}
-          <YAxis
-            tick={{ fill: "#6b7280", fontSize: 12 }}
             axisLine={false}
-            tickLine={false}
           />
-
-          {/* Tooltip */}
+          <YAxis 
+            stroke="#94a3b8" 
+            fontSize={12} 
+            tickLine={false}
+            axisLine={false}
+            allowDecimals={false}
+          />
+          
+          {/* Cyberpunk Dark Tooltip */}
           <Tooltip
-            content={<CustomToolTip />}
-            cursor={{ fill: "#f9fafb" }}
+            contentStyle={{
+              backgroundColor: "rgba(2, 6, 23, 0.9)",
+              border: "1px solid rgba(56, 189, 248, 0.3)",
+              borderRadius: "12px",
+              color: "#f8fafc",
+              fontFamily: "monospace",
+              fontSize: "12px"
+            }}
+            cursor={{ fill: "rgba(30, 41, 59, 0.4)", radius: 8 }}
           />
 
-          {/* Bars */}
-          <Bar
-            dataKey="count"
-            radius={[8, 8, 0, 0]}
-          >
-            {data?.map((entry, index) => (
-              <Cell key={index} fill={getBarColor(entry)} />
-            ))}
-          </Bar>
-
+          <Bar 
+            dataKey="count" 
+            fill="url(#barGradient)" 
+            radius={[8, 8, 0, 0]} 
+            filter="url(#glow)"
+            maxBarSize={45}
+          />
         </BarChart>
       </ResponsiveContainer>
-    </motion.div>
-  )
-}
+    </div>
+  );
+};
 
-export default CustomBarChart
+export default CustomBarChart;
