@@ -12,6 +12,22 @@ const todoSchema = new mongoose.Schema({
   },
 })
 
+const commentSchema = new mongoose.Schema({
+  user: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "User",
+    required: true,
+  },
+  text: {
+    type: String,
+    required: true,
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now,
+  },
+})
+
 const taskSchema = new mongoose.Schema(
   {
     title: {
@@ -63,6 +79,28 @@ const taskSchema = new mongoose.Schema(
     todoChecklist: [todoSchema],
 
     progress: { type: Number, default: 0 },
+
+    comments: [commentSchema],
+
+    timeTracked: {
+      type: Number,
+      default: 0, // Cumulative minutes tracked on the task
+    },
+
+    isTimerRunning: {
+      type: Boolean,
+      default: false,
+    },
+
+    timerStartedAt: {
+      type: Date,
+    },
+
+    approvalStatus: {
+      type: String,
+      enum: ["None", "Pending Approval", "Approved", "Rejected"],
+      default: "None",
+    },
   },
   { timestamps: true }
 )

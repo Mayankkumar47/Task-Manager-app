@@ -7,7 +7,6 @@ import RecentTasks from "../../components/RecentTasks"
 import CustomPieChart from "../../components/CustomPieChart"
 import CustomBarChart from "../../components/CustomBarChart"
 import { motion } from "framer-motion"
-import AiTaskInput from "../../components/AiTaskInput" 
 import KanbanBoard from "../../components/KanbanBoard"
 
 const COLORS = ["#38bdf8", "#3b82f6", "#10b981"] // Premium neon palette accents: Cyan, Blue, Emerald
@@ -92,39 +91,34 @@ const UserDashboard = () => {
     <DashboardLayout activeMenu={"Dashboard"}>
       {/* Container wrapper injected with deep ambient workspace aesthetics */}
       <motion.div
-        className="min-h-screen bg-slate-950 text-slate-100 p-6 space-y-8 selection:bg-cyan-500 selection:text-slate-950"
+        className="min-h-screen bg-slate-950 text-slate-100 p-6 space-y-8 selection:bg-indigo-500 selection:text-slate-950"
         initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
       >
         
         {/* HEADER BLOCK - Premium Glossy Horizon Layout */}
-        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-blue-950 to-slate-900 rounded-2xl p-6 border border-blue-500/20 shadow-2xl shadow-blue-500/5">
-          <div className="absolute top-0 right-0 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div className="relative overflow-hidden bg-gradient-to-r from-slate-900 via-indigo-950/80 to-slate-900 rounded-2xl p-6 border border-indigo-500/20 shadow-2xl shadow-indigo-500/5">
+          <div className="absolute top-0 right-0 w-64 h-64 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none"></div>
           <h2 className="text-2xl md:text-3xl font-extrabold tracking-tight bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
             Welcome back, {currentUser?.name} 👋
           </h2>
-          <p className="text-cyan-400/80 font-mono mt-1 text-xs uppercase tracking-wider">
+          <p className="text-indigo-400/80 font-mono mt-1 text-xs uppercase tracking-wider">
             {moment().format("dddd, Do MMM YYYY")}
           </p>
         </div>
 
-        {/* FUTURISTIC AI ENGINE INTERFACE */}
-        <div>
-          <AiTaskInput onTaskCreated={getDashboardData} />
-        </div>
-
-        {/* OVERVIEW SECTION - Matte Glass Stat Grid */}
+        {/* OVERVIEW SECTION */}
         <div>
           <h3 className="text-xs font-bold font-mono text-slate-400 uppercase tracking-widest mb-4">
-            System Overview
+            Workspace Overview
           </h3>
 
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
             {[
-              ["Total Tasks", dashboardData?.charts?.taskDistribution?.All, "from-blue-500/20 to-transparent", "border-blue-500/30", "text-blue-400"],
-              ["Pending", dashboardData?.charts?.taskDistribution?.Pending, "from-amber-500/20 to-transparent", "border-amber-500/30", "text-amber-400"],
-              ["In Progress", dashboardData?.charts?.taskDistribution?.InProgress, "from-cyan-500/20 to-transparent", "border-cyan-500/30", "text-cyan-400"],
-              ["Completed", dashboardData?.charts?.taskDistribution?.Completed, "from-emerald-500/20 to-transparent", "border-emerald-500/30", "text-emerald-400"],
+              ["Total Tasks", dashboardData?.charts?.taskDistribution?.All, "from-indigo-500/10 to-transparent", "border-indigo-500/20", "text-indigo-400"],
+              ["Pending", dashboardData?.charts?.taskDistribution?.Pending, "from-amber-500/10 to-transparent", "border-amber-500/20", "text-amber-400"],
+              ["In Progress", dashboardData?.charts?.taskDistribution?.InProgress, "from-indigo-500/20 to-transparent", "border-indigo-500/30", "text-indigo-400"],
+              ["Completed", dashboardData?.charts?.taskDistribution?.Completed, "from-emerald-500/10 to-transparent", "border-emerald-500/20", "text-emerald-400"],
             ].map(([title, value, colorGrad, boundaryColor, textTint], i) => (
               <motion.div
                 key={i}
@@ -140,20 +134,20 @@ const UserDashboard = () => {
           </div>
         </div>
 
-        {/* ANALYTICS SECTION - Neon Embedded Charts */}
+        {/* ANALYTICS SECTION */}
         <div>
           <h3 className="text-xs font-bold font-mono text-slate-400 uppercase tracking-widest mb-4">
-            Telemetry Performance
+            Workspace Analytics
           </h3>
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <motion.div whileHover={{ scale: 1.01 }} className="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 p-6 rounded-2xl shadow-2xl">
-              <h4 className="text-sm font-semibold text-slate-300 mb-4 tracking-wide">Task Volume Allocation</h4>
+              <h4 className="text-sm font-semibold text-slate-300 mb-4 tracking-wide">Task Distribution</h4>
               <CustomPieChart data={pieChartData} colors={COLORS} />
             </motion.div>
 
             <motion.div whileHover={{ scale: 1.01 }} className="bg-slate-900/40 backdrop-blur-md border border-slate-800/80 p-6 rounded-2xl shadow-2xl">
-              <h4 className="text-sm font-semibold text-slate-300 mb-4 tracking-wide">Task Priority Metrics</h4>
+              <h4 className="text-sm font-semibold text-slate-300 mb-4 tracking-wide">Task Priorities</h4>
               <CustomBarChart data={barChartData} />
             </motion.div>
           </div>
@@ -162,11 +156,11 @@ const UserDashboard = () => {
         {/* INTERACTIVE WORKSPACE MONITOR TRACKER */}
         <div>
           <h3 className="text-xs font-bold font-mono text-slate-400 uppercase tracking-widest mb-4">
-            Task Workflow Pipeline
+            Task Pipeline
           </h3>
           {dashboardData?.recentTasks?.length === 0 ? (
             <div className="bg-slate-900/30 border border-dashed border-slate-800 p-8 rounded-2xl text-center text-slate-500 font-medium text-sm py-12">
-              No running database entities found. Initialize a workspace task using the interface matrix above. 🚀
+              No tasks assigned. Tasks assigned to you by your administrator will appear here.
             </div>
           ) : (
             <KanbanBoard 

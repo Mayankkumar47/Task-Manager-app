@@ -111,10 +111,9 @@ export const getTasks = async (req, res, next) => {
 
 export const getTaskById = async (req, res, next) => {
   try {
-    const task = await Task.findById(req.params.id).populate(
-      "assignedTo",
-      "name email profileImageUrl"
-    )
+    const task = await Task.findById(req.params.id)
+      .populate("assignedTo", "name email profileImageUrl")
+      .populate("comments.user", "name email profileImageUrl")
 
     if (!task) {
       return next(errorHandler(404, "Task not found!"))
@@ -427,3 +426,109 @@ export const userDashboardData = async (req, res, next) => {
     next(error)
   }
 }
+
+export const addTaskComment = async (req, res, next) => {
+  try {
+    const { text } = req.body;
+    if (!text || text.trim() === "") {
+      return next(errorHandler(400, "Comment text is required"));
+    }
+
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return next(errorHandler(404, "Task not found!"));
+    }
+
+    task.comments.push({
+      user: req.user.id,
+      text: text.trim(),
+    });
+
+    await task.save();
+
+    const updatedTask = await Task.findById(req.params.id)
+      .populate("assignedTo", "name email profileImageUrl")
+      .populate("comments.user", "name email profileImageUrl");
+
+    res.status(200).json({ message: "Comment added successfully", task: updatedTask });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const startTaskTimer = async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return next(errorHandler(404, "Task not found!"));
+    }
+
+    task.isTimerRunning = true;
+    task.timerStartedAt = new Date();
+
+    await task.save();
+
+    const updatedTask = await Task.findById(req.params.id)
+      .populate("assignedTo", "name email profileImageUrl")
+      .populate("comments.user", "name email profileImageUrl");
+
+    res.status(200).json({ message: "Timer started", task: updatedTask });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const stopTaskTimer = async (req, res, next) => {
+  try {
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return next(errorHandler(404, "Task not found!"));
+    }
+
+    if (!task.isTimerRunning || !task.timerStartedAt) {
+      return next(errorHandler(400, "Timer is not running"));
+    }
+
+    const elapsedMs = new Date() - new Date(task.timerStartedAt);
+    const elapsedMinutes = elapsedMs / 60000;
+
+    task.timeTracked = (task.timeTracked || 0) + Number(elapsedMinutes.toFixed(2));
+    task.isTimerRunning = false;
+    task.timerStartedAt = null;
+
+    await task.save();
+
+    const updatedTask = await Task.findById(req.params.id)
+      .populate("assignedTo", "name email profileImageUrl")
+      .populate("comments.user", "name email profileImageUrl");
+
+    res.status(200).json({ message: "Timer stopped", task: updatedTask });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const updateTaskApproval = async (req, res, next) => {
+  try {
+    const { status } = req.body; // "Pending Approval", "Approved", "Rejected", "None"
+    const task = await Task.findById(req.params.id);
+    if (!task) {
+      return next(errorHandler(404, "Task not found!"));
+    }
+
+    if (req.user.role !== "admin" && status !== "Pending Approval") {
+      return next(errorHandler(403, "Only admins can approve or reject tasks"));
+    }
+
+    task.approvalStatus = status;
+    await task.save();
+
+    const updatedTask = await Task.findById(req.params.id)
+      .populate("assignedTo", "name email profileImageUrl")
+      .populate("comments.user", "name email profileImageUrl");
+
+    res.status(200).json({ message: "Approval status updated", task: updatedTask });
+  } catch (error) {
+    next(error);
+  }
+};

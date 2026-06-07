@@ -1,7 +1,7 @@
 import { useState } from "react"
 import AuthLayout from "../../components/AuthLayout"
-import { FaEyeSlash, FaPeopleGroup } from "react-icons/fa6"
-import { FaEye } from "react-icons/fa"
+import { FaEyeSlash } from "react-icons/fa6"
+import { FaEye, FaLock, FaEnvelope, FaCheckCircle } from "react-icons/fa"
 import { Link, useNavigate } from "react-router-dom"
 import { validateEmail } from "../../utils/helper"
 import axiosInstance from "../../utils/axioInstance"
@@ -12,6 +12,7 @@ import {
   signInSuccess,
 } from "../../redux/slice/userSlice"
 import { motion } from "framer-motion"
+import { playClick, playSuccess, playError } from "../../utils/soundEffects"
 
 const Login = () => {
   const navigate = useNavigate()
@@ -28,16 +29,19 @@ const Login = () => {
     e.preventDefault()
 
     if (!validateEmail(email)) {
+      playError()
       setError("Please enter a valid email")
       return
     }
 
     if (!password) {
+      playError()
       setError("Password is required")
       return
     }
 
     setError(null)
+    playClick()
 
     try {
       dispatch(signInStart())
@@ -49,6 +53,7 @@ const Login = () => {
       )
 
       dispatch(signInSuccess(res.data))
+      playSuccess()
 
       if (res.data.role === "admin") {
         navigate("/admin/dashboard")
@@ -57,6 +62,7 @@ const Login = () => {
       }
 
     } catch (err) {
+      playError()
       const msg =
         err.response?.data?.message ||
         "Login failed. Try again."
@@ -69,106 +75,106 @@ const Login = () => {
   return (
     <AuthLayout>
       <motion.div
-        className="w-full max-w-md"
-        initial={{ opacity: 0, y: 20 }}
+        className="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden bg-slate-900/40 border-slate-800/80 w-full text-left"
+        initial={{ opacity: 0, y: 15 }}
         animate={{ opacity: 1, y: 0 }}
       >
+        {/* Accent Glow Line at top of card */}
+        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent" />
 
-        <div className="bg-white rounded-2xl shadow-xl overflow-hidden">
-
-          {/* Top bar */}
-          <div className="h-1.5 bg-gradient-to-r from-blue-600 to-indigo-600" />
-
-          <div className="p-8 space-y-6">
-
-            {/* Logo */}
-            <div className="text-center">
-              <div className="flex justify-center">
-                <div className="bg-blue-100 p-3 rounded-full">
-                  <FaPeopleGroup className="text-3xl text-blue-600" />
-                </div>
+        <div className="space-y-6">
+          {/* Logo & Subtext */}
+          <div className="text-center">
+            <div className="flex justify-center mb-3">
+              <div className="bg-slate-950 border border-slate-900 p-3.5 rounded-xl shadow shadow-[var(--color-glow)]">
+                <FaCheckCircle className="text-2xl text-[var(--color-accent)] animate-pulse" />
               </div>
-
-              <h1 className="text-2xl font-bold mt-3 text-gray-800">
-                TaskFlow
-              </h1>
-
-              <p className="text-sm text-gray-500">
-                Manage your tasks efficiently
-              </p>
             </div>
 
-            {/* FORM */}
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <h1 className="text-lg font-bold font-mono tracking-widest text-slate-100 uppercase">
+              Sign In
+            </h1>
 
-              {/* Email */}
-              <div>
-                <label className="text-sm text-gray-600">
-                  Email
-                </label>
+            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mt-1 font-bold">
+              Enter your credentials to access your workspace
+            </p>
+          </div>
 
+          {/* FORM */}
+          <form onSubmit={handleSubmit} className="space-y-4">
+            
+            {/* Email */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
+                Email Address
+              </label>
+              <div className="flex items-center gap-3 border border-slate-800 px-3.5 py-2.5 rounded-xl bg-slate-950 focus-within:border-[var(--color-accent)] focus-within:ring-1 focus-within:ring-[var(--color-accent)] transition-all">
+                <FaEnvelope className="text-slate-600 text-xs" />
                 <input
                   type="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  className="w-full mt-1 px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none"
+                  onFocus={playClick}
+                  className="w-full text-xs outline-none bg-transparent text-slate-100 placeholder-slate-600"
                   placeholder="you@example.com"
                 />
               </div>
+            </div>
 
-              {/* Password */}
-              <div>
-                <label className="text-sm text-gray-600">
-                  Password
-                </label>
+            {/* Password */}
+            <div className="space-y-1">
+              <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
+                Password
+              </label>
+              <div className="flex items-center gap-3 border border-slate-800 px-3.5 py-2.5 rounded-xl bg-slate-950 focus-within:border-[var(--color-accent)] focus-within:ring-1 focus-within:ring-[var(--color-accent)] transition-all relative">
+                <FaLock className="text-slate-600 text-xs" />
+                <input
+                  type={showPassword ? "text" : "password"}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  onFocus={playClick}
+                  className="w-full text-xs outline-none bg-transparent text-slate-100 placeholder-slate-600 pr-8"
+                  placeholder="••••••••"
+                />
 
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className="w-full mt-1 px-4 py-2.5 border rounded-xl focus:ring-2 focus:ring-blue-500 outline-none pr-10"
-                    placeholder="••••••••"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-3 top-3 text-gray-400"
-                  >
-                    {showPassword ? <FaEyeSlash /> : <FaEye />}
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={() => { playClick(); setShowPassword(!showPassword); }}
+                  className="absolute right-3.5 text-slate-500 hover:text-white transition-colors cursor-pointer"
+                >
+                  {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+                </button>
               </div>
+            </div>
 
-              {/* Error */}
-              {error && (
-                <div className="bg-red-100 text-red-600 text-sm px-3 py-2 rounded-lg">
-                  {error}
-                </div>
-              )}
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-950/20 border border-red-900/30 text-red-400 text-[10px] font-mono p-3 rounded-xl">
+                Error: {error}
+              </div>
+            )}
 
-              {/* Button */}
-              <motion.button
-                whileTap={{ scale: 0.97 }}
-                type="submit"
-                disabled={loading}
-                className="w-full py-2.5 bg-blue-600 text-white rounded-xl font-medium hover:bg-blue-700 transition"
-              >
-                {loading ? "Signing in..." : "Login"}
-              </motion.button>
+            {/* Button */}
+            <motion.button
+              whileHover={{ scale: 1.015 }}
+              whileTap={{ scale: 0.985 }}
+              type="submit"
+              disabled={loading}
+              className="w-full py-3.5 btn-primary rounded-xl text-xs font-bold uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer mt-2"
+            >
+              {loading ? "Signing in..." : "Sign In"}
+            </motion.button>
 
-            </form>
+          </form>
 
-            {/* Footer */}
-            <p className="text-sm text-center text-gray-500">
-              Don’t have an account?{" "}
-              <Link to="/signup" className="text-blue-600 font-medium">
-                Sign up
-              </Link>
-            </p>
+          {/* Footer */}
+          <p className="text-xs text-center text-slate-500 font-sans">
+            Don't have an account?{" "}
+            <Link to="/signup" onClick={playClick} className="text-[var(--color-accent)] font-semibold hover:underline">
+              Sign Up
+            </Link>
+          </p>
 
-          </div>
         </div>
       </motion.div>
     </AuthLayout>

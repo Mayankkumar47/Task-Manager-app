@@ -73,12 +73,14 @@ export const signin = async (req, res, next) => {
 
     const { password: pass, ...rest } = validUser._doc
 
+    const isProduction = process.env.NODE_ENV === "production" || process.env.FRONT_END_URL?.includes("https://")
+
     res
       .status(200)
       .cookie("access_token", token, { 
         httpOnly: true,
-        secure: true,
-        sameSite: "none",
+        secure: isProduction,
+        sameSite: isProduction ? "none" : "lax",
       })
       .json(rest)
       

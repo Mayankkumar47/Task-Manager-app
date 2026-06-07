@@ -2,25 +2,26 @@ import React from "react";
 import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import axiosInstance from "../utils/axioInstance";
 import { motion } from "framer-motion";
+import { playClick, playChime, playError } from "../utils/soundEffects";
 
+// Column configurations mapped directly to status enums
 const COLUMNS = [
-  { id: "Pending", title: "⚡ Pending", bgColor: "bg-amber-500/10 border-amber-500/20 text-amber-400" },
-  { id: "InProgress", title: "🚀 In Progress", bgColor: "bg-blue-500/10 border-blue-500/20 text-blue-400" },
-  { id: "Completed", title: "✅ Completed", bgColor: "bg-emerald-500/10 border-emerald-500/20 text-emerald-400" }
+  { id: "Pending", title: "⚡ Pending", colorClass: "text-amber-400", borderClass: "border-slate-900", glowClass: "shadow-sm" },
+  { id: "In Progress", title: "🚀 In Progress", colorClass: "text-indigo-400", borderClass: "border-slate-900", glowClass: "shadow-sm" },
+  { id: "Completed", title: "✅ Completed", colorClass: "text-emerald-400", borderClass: "border-slate-900", glowClass: "shadow-sm" }
 ];
 
 const KanbanBoard = ({ tasks, onTaskMoved }) => {
-  // Group your tasks locally into columns based on their status enum matching your MongoDB values
+  // Group tasks by status
   const columnsData = {
-    Pending: tasks?.filter(t => t.status === "Pending") || [],
-    InProgress: tasks?.filter(t => t.status === "InProgress" || t.status === "In Progress") || [],
-    Completed: tasks?.filter(t => t.status === "Completed") || []
+    "Pending": tasks?.filter(t => t.status === "Pending") || [],
+    "In Progress": tasks?.filter(t => t.status === "In Progress" || t.status === "InProgress") || [],
+    "Completed": tasks?.filter(t => t.status === "Completed") || []
   };
 
   const handleDragEnd = async (result) => {
     const { destination, source, draggableId } = result;
 
-    // Dropped outside a valid column or dropped in the exact same place
     if (!destination || (destination.droppableId === source.droppableId && destination.index === source.index)) {
       return;
     }
@@ -28,82 +29,117 @@ const KanbanBoard = ({ tasks, onTaskMoved }) => {
     const newStatus = destination.droppableId;
 
     try {
-      // Optimistically trigger a reload on the parent UI layout
+      playClick();
       onTaskMoved(draggableId, newStatus);
-
-      // Make a backend request to update the task status in MongoDB
-      // Ensure this matches your existing backend edit route endpoint (e.g., /tasks/update/:id or similar)
-      await axiosInstance.put(`/tasks/update/${draggableId}`, { status: newStatus });
+      await axiosInstance.put(`/tasks/${draggableId}/status`, { status: newStatus });
+      playChime();
     } catch (err) {
+      playError();
       console.error("Failed to sync drag status to database:", err);
     }
   };
 
   return (
     <DragDropContext onDragEnd={handleDragEnd}>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4">
-        {COLUMNS.map((col) => (
-          <div key={col.id} className={`flex flex-col p-4 rounded-2xl border ${col.bgColor} bg-slate-900/20 backdrop-blur-md min-h-[450px]`}>
-            <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-800/60">
-              <h3 className="font-semibold text-sm tracking-wide">{col.title}</h3>
-              <span className="text-xs bg-slate-950/60 px-2.5 py-0.5 rounded-full font-mono border border-slate-800">
-                {columnsData[col.id].length}
-              </span>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-4 select-none">
+        {COLUMNS.map((col) => {
+          const colTasks = columnsData[col.id] || [];
+          return (
+            <div 
+              key={col.id} 
+              className={`flex flex-col p-4 rounded-2xl border ${col.borderClass} bg-slate-950/20 backdrop-blur-md min-h-[450px] shadow-sm`}
+            >
+              {/* Column Title */}
+              <div className="flex justify-between items-center mb-4 pb-2 border-b border-slate-900/60">
+                <h3 className={`font-mono text-xs uppercase tracking-wider font-bold ${col.colorClass}`}>{col.title}</h3>
+                <span className="text-[10px] bg-slate-900 border border-slate-800 text-slate-400 px-2.5 py-0.5 rounded-md font-mono">
+                  {colTasks.length}
+                </span>
+              </div>
 
-            <Droppable droppableId={col.id}>
-              {(provided, snapshot) => (
-                <div
-                  ref={provided.innerRef}
-                  {...provided.droppableProps}
-                  className={`flex-1 space-y-3 transition-colors rounded-xl p-1 ${
-                    snapshot.isDraggingOver ? "bg-slate-950/30" : ""
-                  }`}
-                >
-                  {columnsData[col.id].map((task, index) => (
-                    <Draggable key={task._id} draggableId={task._id} index={index}>
-                      {(provided, snapshot) => (
-                        <div
-                          ref={provided.innerRef}
-                          {...provided.draggableProps}
-                          {...provided.dragHandleProps}
-                          style={{ ...provided.draggableProps.style }}
-                          className={`p-4 bg-slate-950/80 border border-slate-800 hover:border-slate-700 rounded-xl shadow-xl transition-all select-none ${
-                            snapshot.isDragging ? "border-cyan-500 shadow-cyan-500/10 scale-[1.02]" : ""
-                          }`}
-                        >
-                          <div className="flex justify-between items-start gap-2 mb-1">
-                            <h4 className="font-medium text-sm text-slate-100 line-clamp-2">{task.title}</h4>
-                            <span className={`text-[9px] px-1.5 py-0.5 font-mono uppercase rounded border ${
-                              task.priority === 'High' || task.priority === 'high'
-                                ? 'bg-red-500/10 text-red-400 border-red-500/20'
-                                : 'bg-slate-800 text-slate-400 border-slate-700'
-                            }`}>
-                              {task.priority}
-                            </span>
-                          </div>
-
-                          {task.description && (
-                            <p className="text-xs text-slate-400 line-clamp-2 mb-3">{task.description}</p>
-                          )}
-
-                          <div className="flex flex-wrap gap-1 mt-2">
-                            {task.tags?.map((tag, i) => (
-                              <span key={i} className="text-[10px] text-cyan-400 font-mono">
-                                #{tag.toLowerCase()}
+              {/* Droppable pipeline track */}
+              <Droppable droppableId={col.id}>
+                {(provided, snapshot) => (
+                  <div
+                    ref={provided.innerRef}
+                    {...provided.droppableProps}
+                    className={`flex-1 space-y-3 transition-colors rounded-xl p-1 ${
+                      snapshot.isDraggingOver ? "bg-slate-900/10 border border-dashed border-slate-800/20" : ""
+                    }`}
+                  >
+                    {colTasks.map((task, index) => (
+                      <Draggable key={task._id} draggableId={task._id} index={index}>
+                        {(provided, snapshot) => (
+                          <div
+                            ref={provided.innerRef}
+                            {...provided.draggableProps}
+                            {...provided.dragHandleProps}
+                            style={{ ...provided.draggableProps.style }}
+                            className={`p-4 bg-slate-900/40 border rounded-xl shadow-md transition-all relative ${
+                              snapshot.isDragging 
+                                ? "border-indigo-500/40 shadow-xl shadow-indigo-500/5 scale-[1.02]" 
+                                : "border-slate-800/80 hover:border-slate-700/80"
+                            }`}
+                          >
+                            <div className="flex justify-between items-start gap-3 mb-1.5">
+                              <h4 className="font-bold text-xs text-slate-100 line-clamp-2 leading-tight tracking-wide font-sans">{task.title}</h4>
+                              <span className={`text-[8px] font-mono px-1.5 py-0.5 rounded border uppercase tracking-wider font-bold shrink-0 ${
+                                task.priority?.toLowerCase() === 'high'
+                                  ? 'bg-rose-500/10 text-rose-400 border-rose-500/20'
+                                  : task.priority?.toLowerCase() === 'medium'
+                                  ? 'bg-orange-500/10 text-orange-400 border-orange-500/20'
+                                  : 'bg-slate-800 text-slate-400 border-slate-700'
+                              }`}>
+                                {task.priority || "Low"}
                               </span>
-                            ))}
+                            </div>
+
+                            {task.description && (
+                              <p className="text-[11px] text-slate-400 line-clamp-2 leading-snug">{task.description}</p>
+                            )}
+
+                            {task.tags && task.tags.length > 0 && (
+                              <div className="flex flex-wrap gap-1 mt-2.5">
+                                {task.tags.map((tag, i) => (
+                                  <span key={i} className="text-[9px] text-indigo-400 font-mono opacity-80">
+                                    #{tag.toLowerCase()}
+                                  </span>
+                                ))}
+                              </div>
+                            )}
+
+                            {/* Time Log & Approval readouts */}
+                            {(task.timeTracked > 0 || (task.approvalStatus && task.approvalStatus !== "None")) && (
+                              <div className="flex justify-between items-center mt-3 pt-2 border-t border-slate-900/40 text-[9px] font-mono text-slate-500">
+                                {task.timeTracked > 0 ? (
+                                  <span className="font-bold">⏱️ {task.timeTracked.toFixed(1)}m</span>
+                                ) : (
+                                  <span></span>
+                                )}
+                                {task.approvalStatus && task.approvalStatus !== "None" && (
+                                  <span className={`px-1.5 py-0.5 rounded border uppercase font-bold ${
+                                    task.approvalStatus === "Approved" 
+                                      ? "bg-emerald-500/10 border-emerald-500/20 text-emerald-400"
+                                      : task.approvalStatus === "Rejected"
+                                      ? "bg-rose-500/10 border-rose-500/20 text-rose-400"
+                                      : "bg-indigo-500/10 border-indigo-500/20 text-indigo-400"
+                                  }`}>
+                                    {task.approvalStatus}
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
-                        </div>
-                      )}
-                    </Draggable>
-                  ))}
-                  {provided.placeholder}
-                </div>
-              )}
-            </Droppable>
-          </div>
-        ))}
+                        )}
+                      </Draggable>
+                    ))}
+                    {provided.placeholder}
+                  </div>
+                )}
+              </Droppable>
+            </div>
+          );
+        })}
       </div>
     </DragDropContext>
   );

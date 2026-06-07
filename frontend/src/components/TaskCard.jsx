@@ -4,6 +4,7 @@ import AvatarGroup from "./AvatarGroup"
 import { FaFileLines } from "react-icons/fa6"
 import { motion } from "framer-motion"
 import Progress from "./Progress"
+import { playClick } from "../utils/soundEffects"
 
 const TaskCard = ({
   title,
@@ -17,71 +18,104 @@ const TaskCard = ({
   attachmentCount,
   completedTodoCount,
   todoChecklist,
+  approvalStatus,
+  timeTracked = 0,
   onClick,
 }) => {
 
+  const handleCardClick = (e) => {
+    playClick()
+    if (onClick) {
+      onClick(e)
+    }
+  }
+
   const getStatusTag = () => {
-    if (status === "Completed") return "bg-green-100 text-green-700"
-    if (status === "In Progress") return "bg-blue-100 text-blue-700"
-    return "bg-yellow-100 text-yellow-700"
+    if (status === "Completed") return "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 font-mono"
+    if (status === "In Progress" || status === "InProgress") return "bg-indigo-500/10 border-indigo-500/20 text-indigo-400 font-mono"
+    return "bg-amber-500/10 border-amber-500/20 text-amber-400 font-mono"
   }
 
   const getPriorityTag = () => {
-    if (priority === "High") return "bg-red-100 text-red-700"
-    if (priority === "Medium") return "bg-orange-100 text-orange-700"
-    return "bg-green-100 text-green-700"
+    const p = priority?.toLowerCase()
+    if (p === "high") return "bg-rose-500/10 border-rose-500/20 text-rose-400 font-mono"
+    if (p === "medium") return "bg-orange-500/10 border-orange-500/20 text-orange-400 font-mono"
+    return "bg-slate-900 border-slate-800 text-slate-500 font-mono"
+  }
+
+  const getApprovalTag = () => {
+    if (!approvalStatus || approvalStatus === "None") return null
+    if (approvalStatus === "Approved") return "bg-emerald-500/10 border-emerald-500/20 text-emerald-400 font-mono"
+    if (approvalStatus === "Rejected") return "bg-rose-500/10 border-rose-500/20 text-rose-400 font-mono"
+    return "bg-indigo-500/10 border-indigo-500/20 text-indigo-400 font-mono"
   }
 
   return (
     <motion.div
-      whileHover={{ scale: 1.02 }}
-      whileTap={{ scale: 0.98 }}
-      onClick={onClick}
-      className="bg-white rounded-2xl p-4 shadow border border-gray-100 cursor-pointer space-y-3"
+      whileHover={{ scale: 1.015, y: -2 }}
+      whileTap={{ scale: 0.985 }}
+      onClick={handleCardClick}
+      className="glass-panel bg-slate-900/40 rounded-2xl p-5 border border-slate-900/60 cursor-pointer space-y-4 hover:border-indigo-500/30 hover:shadow-2xl hover:shadow-indigo-500/5 select-none text-left"
     >
 
       {/*  Tags */}
-      <div className="flex gap-2">
-        <span className={`text-xs px-3 py-1 rounded-full font-medium ${getStatusTag()}`}>
+      <div className="flex flex-wrap gap-2">
+        <span className={`text-[9px] px-2.5 py-0.5 rounded border uppercase tracking-wider font-bold ${getStatusTag()}`}>
           {status}
         </span>
 
-        <span className={`text-xs px-3 py-1 rounded-full font-medium ${getPriorityTag()}`}>
+        <span className={`text-[9px] px-2.5 py-0.5 rounded border uppercase tracking-wider font-bold ${getPriorityTag()}`}>
           {priority}
         </span>
+
+        {getApprovalTag() && (
+          <span className={`text-[9px] px-2.5 py-0.5 rounded border uppercase tracking-wider font-bold ${getApprovalTag()}`}>
+            {approvalStatus}
+          </span>
+        )}
       </div>
 
-      {/*  Title */}
-      <h3 className="text-base font-semibold text-gray-800 line-clamp-2">
-        {title}
-      </h3>
+      {/*  Title & Timer Log */}
+      <div className="flex justify-between items-start gap-3">
+        <h3 className="text-xs font-bold text-slate-100 line-clamp-2 leading-relaxed tracking-wide font-sans">
+          {title}
+        </h3>
+        {timeTracked > 0 && (
+          <span className="text-[10px] font-mono text-slate-500 shrink-0 font-bold" title="Logged Stopwatch Time">
+            ⏱️ {timeTracked.toFixed(1)}m
+          </span>
+        )}
+      </div>
 
       {/*  Description */}
-      <p className="text-sm text-gray-500 line-clamp-2">
-        {description}
-      </p>
+      {description && (
+        <p className="text-xs text-slate-400 line-clamp-2 leading-relaxed">
+          {description}
+        </p>
+      )}
 
       {/*  Progress */}
-      <div>
-        <p className="text-xs text-gray-500 mb-1">
-          Progress: {completedTodoCount} / {todoChecklist.length || 0}
-        </p>
+      <div className="space-y-1.5 pt-1">
+        <div className="flex justify-between items-center text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">
+          <span>SEQUENCE TRACK</span>
+          <span className="text-slate-400">{completedTodoCount}/{todoChecklist?.length || 0} items</span>
+        </div>
         <Progress progress={progress} status={status} />
       </div>
 
       {/*  Dates */}
-      <div className="flex justify-between text-xs text-gray-500">
+      <div className="flex justify-between text-[9px] font-mono text-slate-500 pt-1 border-t border-slate-900/60">
         <span>
-          Start:{" "}
-          <span className="text-gray-700 font-medium">
-            {moment(createdAt).format("DD MMM")}
+          CREATED:{" "}
+          <span className="text-slate-400 font-bold">
+            {moment(createdAt).format("DD MMM YYYY")}
           </span>
         </span>
 
         <span>
-          Due:{" "}
-          <span className="text-gray-700 font-medium">
-            {moment(dueDate).format("DD MMM")}
+          DEADLINE:{" "}
+          <span className="text-slate-350 font-bold">
+            {moment(dueDate).format("DD MMM YYYY")}
           </span>
         </span>
       </div>
@@ -91,9 +125,9 @@ const TaskCard = ({
         <AvatarGroup avatars={assignedTo || []} />
 
         {attachmentCount > 0 && (
-          <div className="flex items-center gap-1 text-xs bg-blue-50 px-2 py-1 rounded-md">
-            <FaFileLines className="text-blue-500" />
-            {attachmentCount}
+          <div className="flex items-center gap-1 text-[9px] font-mono bg-slate-900 border border-slate-800 text-slate-400 px-2 py-0.5 rounded-md">
+            <FaFileLines className="text-indigo-400 text-xs" />
+            <span>{attachmentCount}</span>
           </div>
         )}
       </div>

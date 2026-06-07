@@ -5,6 +5,7 @@ import {
   MdManageHistory,
   MdOutlineTaskAlt,
   MdPeopleAlt,
+  MdChat,
 } from "react-icons/md"
 
 export const SIDE_MENU_DATA = [
@@ -34,6 +35,12 @@ export const SIDE_MENU_DATA = [
   },
   {
     id: 5,
+    label: "Team Chat",
+    icon: MdChat,
+    path: "/team-chat",
+  },
+  {
+    id: 6,
     label: "Logout",
     icon: MdLogout,
     path: "logout",
@@ -55,6 +62,12 @@ export const USER_SIDE_MENU_DATA = [
   },
   {
     id: 3,
+    label: "Team Chat",
+    icon: MdChat,
+    path: "/team-chat",
+  },
+  {
+    id: 4,
     label: "Logout",
     icon: MdLogout,
     path: "logout",

@@ -12,6 +12,7 @@ import userRoutes from "./routes/user.route.js"
 import taskRoutes from "./routes/task.route.js"
 import reportRoutes from "./routes/report.route.js"
 import aiRoutes from "./routes/ai.route.js"
+import chatRoutes from "./routes/chat.route.js"
 
 dns.setServers(['8.8.8.8', '1.1.1.1'])
 
@@ -32,9 +33,21 @@ mongoose
 const app = express()
 
 // 1. Core Global Middleware (Must sit above routes)
+const allowedOrigins = [process.env.FRONT_END_URL]
+
 app.use(
   cors({
-    origin: process.env.FRONT_END_URL,
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like curl, postman, mobile apps)
+      if (!origin) return callback(null, true)
+      
+      const isLocalhost = /^https?:\/\/(localhost|127\.0\.0\.1):\d+$/.test(origin)
+      if (allowedOrigins.includes(origin) || isLocalhost) {
+        callback(null, true)
+      } else {
+        callback(new Error("Not allowed by CORS"))
+      }
+    },
     methods: ["GET", "POST", "PUT", "DELETE"],
     credentials: true,
   })
@@ -51,6 +64,7 @@ app.use("/api/users", userRoutes)
 app.use("/api/tasks", taskRoutes)
 app.use("/api/reports", reportRoutes)
 app.use("/api/ai", aiRoutes)
+app.use("/api/chats", chatRoutes)
 
 // 4. Centralized Error Interceptor Block
 app.use((err, req, res, next) => {

@@ -1,5 +1,5 @@
 import React from "react"
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom"
+import { BrowserRouter, Routes, Route } from "react-router-dom"
 import Login from "./pages/auth/Login"
 import SignUp from "./pages/auth/SignUp"
 import Dashboard from "./pages/admin/Dashboard"
@@ -10,7 +10,8 @@ import PrivateRoute from "./routes/PrivateRoute"
 import UserDashboard from "./pages/user/UserDashboard"
 import TaskDetails from "./pages/user/TaskDetails"
 import MyTasks from "./pages/user/MyTasks"
-import { useSelector } from "react-redux"
+import LandingPage from "./pages/LandingPage"
+import TeamChat from "./pages/TeamChat"
 
 import toast, { Toaster } from "react-hot-toast"
 
@@ -19,8 +20,16 @@ const App = () => {
     <div>
       <BrowserRouter>
         <Routes>
+          {/* Public Landing Page */}
+          <Route path="/" element={<LandingPage />} />
+          
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
+
+          {/* Shared Authenticated Routes */}
+          <Route element={<PrivateRoute allowedRoles={["admin", "user"]} />}>
+            <Route path="/team-chat" element={<TeamChat />} />
+          </Route>
 
           {/* Admin Routes */}
           <Route element={<PrivateRoute allowedRoles={["admin"]} />}>
@@ -36,9 +45,6 @@ const App = () => {
             <Route path="/user/tasks" element={<MyTasks />} />
             <Route path="/user/task-details/:id" element={<TaskDetails />} />
           </Route>
-
-          {/* Default Route */}
-          <Route path="/" element={<Root />} />
         </Routes>
       </BrowserRouter>
 
@@ -48,17 +54,3 @@ const App = () => {
 }
 
 export default App
-
-const Root = () => {
-  const { currentUser } = useSelector((state) => state.user)
-
-  if (!currentUser) {
-    return <Navigate to={"/login"} />
-  }
-
-  return currentUser.role === "admin" ? (
-    <Navigate to={"/admin/dashboard"} />
-  ) : (
-    <Navigate to={"/user/dashboard"} />
-  )
-}
