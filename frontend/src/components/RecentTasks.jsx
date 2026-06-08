@@ -1,8 +1,14 @@
 import React from "react";
 import { motion } from "framer-motion";
 import moment from "moment";
+import { useNavigate } from "react-router-dom";
 
 const RecentTasks = ({ tasks }) => {
+  const navigate = useNavigate();
+
+  const handleCardClick = (id) => {
+    navigate(`/user/task-details/${id}`);
+  };
   // Color configuration mapper for quick systemic state scans
   const getStatusStyles = (status) => {
     switch (status) {
@@ -47,7 +53,8 @@ const RecentTasks = ({ tasks }) => {
             animate={{ opacity: 1, x: 0 }}
             transition={{ delay: index * 0.05 }}
             whileHover={{ x: 4, backgroundColor: "rgba(30, 41, 59, 0.3)" }}
-            className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/40 backdrop-blur-md border border-slate-800/80 shadow-lg ${stateStyle.glow} transition-all`}
+            onClick={() => handleCardClick(task._id)}
+            className={`flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 rounded-xl bg-slate-900/40 backdrop-blur-md border border-slate-800/80 shadow-lg ${stateStyle.glow} transition-all cursor-pointer`}
           >
             {/* Left Side: Title and Core Meta Details */}
             <div className="space-y-1.5 flex-1">

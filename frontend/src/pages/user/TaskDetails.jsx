@@ -165,6 +165,20 @@ const TaskDetails = () => {
     }
   }
 
+  // Status update workflow
+  const handleStatusChange = async (status) => {
+    try {
+      playClick()
+      const response = await axiosInstance.put(`/tasks/${id}/status`, { status })
+      setTask(response.data?.task)
+      playSuccess()
+      toast.success(`Status updated to: ${status}`)
+    } catch (error) {
+      playError()
+      toast.error("Failed to update status")
+    }
+  }
+
   const handleLinkClick = (link) => {
     playClick()
     if (!/^https?:\/\//i.test(link)) link = "https://" + link
@@ -187,6 +201,8 @@ const TaskDetails = () => {
   }
 
   const isAdmin = currentUser?.role === "admin"
+  const isAssigned = task?.assignedTo?.some((u) => u._id === currentUser?._id)
+  const canUpdateStatus = isAssigned || isAdmin
 
   return (
     <DashboardLayout activeMenu={isAdmin ? "Manage Task" : "My Tasks"}>
@@ -213,10 +229,25 @@ const TaskDetails = () => {
           <div className="absolute top-0 right-0 w-32 h-32 bg-indigo-500/5 rounded-full blur-2xl pointer-events-none"></div>
           <div>
             <h2 className="text-lg font-bold text-slate-100 tracking-wide font-sans">{task?.title}</h2>
-            <div className="flex flex-wrap gap-2 mt-3 select-none">
-              <span className={`px-2.5 py-0.5 text-[10px] rounded border font-mono font-bold uppercase tracking-wider ${getStatusTagColor(task?.status)}`}>
-                {task?.status}
-              </span>
+            <div className="flex flex-wrap items-center gap-2 mt-3 select-none">
+              {canUpdateStatus ? (
+                <div className="flex items-center gap-1">
+                  <span className="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">Status:</span>
+                  <select
+                    value={task?.status || "Pending"}
+                    onChange={(e) => handleStatusChange(e.target.value)}
+                    className="px-2 py-0.5 text-[10px] rounded border font-mono font-bold uppercase tracking-wider bg-slate-950 border-slate-800 text-indigo-400 focus:border-indigo-500 focus:ring-1 focus:ring-indigo-500 outline-none cursor-pointer"
+                  >
+                    <option value="Pending">Pending</option>
+                    <option value="In Progress">In Progress</option>
+                    <option value="Completed">Completed</option>
+                  </select>
+                </div>
+              ) : (
+                <span className={`px-2.5 py-0.5 text-[10px] rounded border font-mono font-bold uppercase tracking-wider ${getStatusTagColor(task?.status)}`}>
+                  {task?.status}
+                </span>
+              )}
               <span className={`px-2.5 py-0.5 text-[10px] rounded border font-mono font-bold uppercase tracking-wider ${getApprovalTagColor(task?.approvalStatus)}`}>
                 Approval: {task?.approvalStatus || "None"}
               </span>

@@ -3,6 +3,7 @@ import { DragDropContext, Droppable, Draggable } from "@hello-pangea/dnd";
 import axiosInstance from "../utils/axioInstance";
 import { motion } from "framer-motion";
 import { playClick, playChime, playError } from "../utils/soundEffects";
+import { useNavigate } from "react-router-dom";
 
 // Column configurations mapped directly to status enums
 const COLUMNS = [
@@ -12,6 +13,7 @@ const COLUMNS = [
 ];
 
 const KanbanBoard = ({ tasks, onTaskMoved }) => {
+  const navigate = useNavigate();
   // Group tasks by status
   const columnsData = {
     "Pending": tasks?.filter(t => t.status === "Pending") || [],
@@ -75,7 +77,8 @@ const KanbanBoard = ({ tasks, onTaskMoved }) => {
                             {...provided.draggableProps}
                             {...provided.dragHandleProps}
                             style={{ ...provided.draggableProps.style }}
-                            className={`p-4 bg-slate-900/40 border rounded-xl shadow-md transition-all relative ${
+                            onClick={() => navigate(`/user/task-details/${task._id}`)}
+                            className={`p-4 bg-slate-900/40 border rounded-xl shadow-md transition-all relative cursor-pointer ${
                               snapshot.isDragging 
                                 ? "border-indigo-500/40 shadow-xl shadow-indigo-500/5 scale-[1.02]" 
                                 : "border-slate-800/80 hover:border-slate-700/80"
