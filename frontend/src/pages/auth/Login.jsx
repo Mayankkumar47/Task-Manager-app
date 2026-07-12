@@ -25,6 +25,17 @@ const Login = () => {
 
   const { loading } = useSelector((state) => state.user)
 
+  const handleQuickFill = (roleType) => {
+    playClick()
+    if (roleType === "user") {
+      setEmail("guest@taskflow.io")
+      setPassword("guestpasscode123")
+    } else {
+      setEmail("admin_guest@taskflow.io")
+      setPassword("adminpasscode123")
+    }
+  }
+
   const handleSubmit = async (e) => {
     e.preventDefault()
 
@@ -167,8 +178,33 @@ const Login = () => {
 
           </form>
 
+          {/* Quick Demo Login Box */}
+          <div className="mt-4 border-t border-slate-900/60 pt-4 space-y-2 select-none">
+            <p className="text-[9px] font-mono text-slate-500 uppercase tracking-widest text-center font-bold">
+              💡 Quick Demo Accounts (Click to Fill)
+            </p>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => handleQuickFill("user")}
+                className="p-2.5 rounded-xl border border-slate-800 bg-slate-950/40 hover:bg-slate-900/20 hover:border-indigo-500/30 transition-all text-left group cursor-pointer"
+              >
+                <p className="text-[10px] font-bold text-slate-300 group-hover:text-indigo-400">Team Member</p>
+                <p className="text-[8px] font-mono text-slate-500 mt-0.5 truncate">guest@taskflow.io</p>
+              </button>
+              <button
+                type="button"
+                onClick={() => handleQuickFill("admin")}
+                className="p-2.5 rounded-xl border border-slate-800 bg-slate-950/40 hover:bg-slate-900/20 hover:border-indigo-500/30 transition-all text-left group cursor-pointer"
+              >
+                <p className="text-[10px] font-bold text-slate-300 group-hover:text-indigo-400">Workspace Admin</p>
+                <p className="text-[8px] font-mono text-slate-500 mt-0.5 truncate">admin_guest@taskflow.io</p>
+              </button>
+            </div>
+          </div>
+
           {/* Footer */}
-          <p className="text-xs text-center text-slate-500 font-sans">
+          <p className="text-xs text-center text-slate-500 font-sans mt-4">
             Don't have an account?{" "}
             <Link to="/signup" onClick={playClick} className="text-[var(--color-accent)] font-semibold hover:underline">
               Sign Up
