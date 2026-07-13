@@ -69,6 +69,8 @@ export const chatAI = async (req, res, next) => {
   try {
     const { message } = req.body;
 
+    console.log("📥 AI CHAT ENDPOINT TRIGGERED: ", message);
+
     if (!message || message.trim() === "") {
       return res.status(400).json({ message: "Please provide a chat message." });
     }
@@ -133,6 +135,7 @@ export const chatAI = async (req, res, next) => {
 
     const data = await response.json();
     const reply = data.choices[0].message.content.trim();
+    console.log("✅ AI CHAT REPLY SUCCESS");
     return res.status(200).json({ reply });
 
   } catch (error) {
