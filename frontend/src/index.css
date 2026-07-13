@@ -138,3 +138,77 @@
 ::-webkit-scrollbar-thumb:hover {
   background: var(--color-accent);
 }
+
+/* GLOBAL LIGHT MODE OVERRIDES */
+:root[data-theme="light"] body {
+  background-color: var(--color-page-bg) !important;
+  color: var(--color-text-main) !important;
+}
+
+:root[data-theme="light"] .min-h-screen,
+:root[data-theme="light"] .cyber-bg {
+  background-color: var(--color-page-bg) !important;
+  color: var(--color-text-main) !important;
+}
+
+:root[data-theme="light"] .bg-\[\#070b13\],
+:root[data-theme="light"] .bg-slate-950,
+:root[data-theme="light"] .bg-slate-950\/45,
+:root[data-theme="light"] .bg-slate-950\/95,
+:root[data-theme="light"] .bg-slate-900\/15,
+:root[data-theme="light"] .bg-slate-900\/30,
+:root[data-theme="light"] .bg-slate-900 {
+  background-color: var(--color-panel-bg) !important;
+  color: var(--color-text-main) !important;
+}
+
+:root[data-theme="light"] .border-slate-800,
+:root[data-theme="light"] .border-slate-900,
+:root[data-theme="light"] .border-slate-900\/60,
+:root[data-theme="light"] .border-slate-900\/40,
+:root[data-theme="light"] .border-slate-800\/60,
+:root[data-theme="light"] .border-r,
+:root[data-theme="light"] .border-b,
+:root[data-theme="light"] .border {
+  border-color: var(--color-panel-border) !important;
+}
+
+:root[data-theme="light"] .text-slate-100,
+:root[data-theme="light"] .text-slate-200,
+:root[data-theme="light"] .text-slate-300,
+:root[data-theme="light"] .text-slate-400,
+:root[data-theme="light"] .text-slate-200.leading-tight {
+  color: var(--color-text-main) !important;
+}
+
+:root[data-theme="light"] .text-slate-500,
+:root[data-theme="light"] .text-slate-600 {
+  color: var(--color-text-muted) !important;
+}
+
+:root[data-theme="light"] input,
+:root[data-theme="light"] select,
+:root[data-theme="light"] textarea {
+  background-color: rgba(255, 255, 255, 0.95) !important;
+  color: var(--color-text-main) !important;
+  border-color: var(--color-panel-border) !important;
+}
+
+:root[data-theme="light"] .glass-panel {
+  background: var(--color-panel-bg) !important;
+  border-color: var(--color-panel-border) !important;
+}
+
+:root[data-theme="light"] .btn-secondary {
+  background: #ffffff !important;
+  border-color: var(--color-panel-border) !important;
+  color: var(--color-text-main) !important;
+}
+:root[data-theme="light"] .btn-secondary:hover {
+  background: #f1f5f9 !important;
+  color: var(--color-text-main) !important;
+}
+
+:root[data-theme="light"] .bg-slate-900\/15 {
+  background-color: rgba(0, 0, 0, 0.03) !important;
+}

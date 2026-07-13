@@ -55,7 +55,7 @@ const DashboardLayout = ({ children, activeMenu }) => {
   }
 
   return (
-    <div className="min-h-screen flex bg-[#070b13] text-slate-100 font-sans selection:bg-indigo-500 selection:text-white relative overflow-hidden">
+    <div className="min-h-screen flex bg-[var(--color-page-bg)] text-[var(--color-text-main)] font-sans selection:bg-indigo-500 selection:text-white relative overflow-hidden">
       
       {/* SaaS Ambient Radial Glows */}
       <div className="absolute top-[-10%] left-[-10%] w-[50%] h-[50%] rounded-full bg-indigo-500/5 blur-[150px] pointer-events-none z-0"></div>
@@ -147,7 +147,7 @@ const DashboardLayout = ({ children, activeMenu }) => {
               <div className="flex justify-between items-center border-b border-slate-900 pb-3 mb-4">
                 <div className="flex items-center gap-2">
                   <span className="text-indigo-400 text-lg">💡</span>
-                  <h3 className="text-base font-bold text-slate-100">About QueryAI</h3>
+                  <h3 className="text-base font-bold text-slate-100">About Task Manager</h3>
                 </div>
                 <button
                   onClick={() => setIsAboutOpen(false)}
@@ -159,7 +159,7 @@ const DashboardLayout = ({ children, activeMenu }) => {
               
               <div className="space-y-4 text-xs leading-relaxed text-slate-300">
                 <p>
-                  <strong>QueryAI</strong> is a full-stack AI-powered chat application designed to simulate real-world conversational systems with secure authentication and persistent user-based chat history.
+                  <strong>Task Manager</strong> is a full-stack AI-powered chat application designed to simulate real-world conversational systems with secure authentication and persistent user-based chat history.
                 </p>
 
                 <div>
