@@ -159,36 +159,36 @@ const DashboardLayout = ({ children, activeMenu }) => {
               
               <div className="space-y-4 text-xs leading-relaxed text-slate-300">
                 <p>
-                  <strong>Task Manager</strong> is a full-stack AI-powered chat application designed to simulate real-world conversational systems with secure authentication and persistent user-based chat history.
+                  <strong>Task Manager</strong> is a full-stack AI-powered task management application designed to simulate real-world workflow and collaboration systems with secure authentication, progress tracking, time logging, and persistent user-based task history.
                 </p>
 
                 <div>
                   <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px] mb-2 text-indigo-400">Key Features</h4>
                   <ul className="list-disc list-inside space-y-1.5 pl-1">
                     <li>Secure JWT-based authentication</li>
-                    <li>User-specific persistent chat history</li>
-                    <li>Real-time AI responses using Groq LLM APIs</li>
-                    <li>Thread-based conversation management</li>
-                    <li>Responsive UI (desktop & mobile)</li>
+                    <li>Role-based dashboard interfaces (Admin & Team Member)</li>
+                    <li>Interactive task pipelines with status columns</li>
+                    <li>Integrated stopwatch for logging hours on tasks</li>
+                    <li>Real-time AI suggestions using Groq LLM APIs (M.I.N.D. Co-pilot)</li>
+                    <li>Built-in CSV/Excel report exporting for task audits</li>
                     <li>Light / Dark theme support</li>
                     <li>Password visibility toggle</li>
                     <li>Toast notifications for user actions</li>
-                    <li>Keyboard accessibility (Enter, Escape)</li>
                   </ul>
                 </div>
 
                 <div>
                   <h4 className="font-bold text-slate-200 uppercase tracking-wider text-[10px] mb-2 text-indigo-400">Tech Stack</h4>
                   <ul className="list-disc list-inside space-y-1.5 pl-1">
-                    <li><strong>Frontend:</strong> React, Context API, CSS</li>
+                    <li><strong>Frontend:</strong> React, Redux Toolkit, CSS</li>
                     <li><strong>Backend:</strong> Node.js, Express, REST APIs</li>
-                    <li><strong>Database:</strong> MongoDB (thread-based storage)</li>
-                    <li><strong>AI:</strong> LLM API integration</li>
+                    <li><strong>Database:</strong> MongoDB (task and user database)</li>
+                    <li><strong>AI:</strong> Groq LLM API integration</li>
                   </ul>
                 </div>
 
                 <div className="pt-2 border-t border-slate-900 text-center text-slate-500 text-[10px] font-mono">
-                  Built as a learning-focused project with emphasis on real-world chat application features.
+                  Built as a learning-focused project with emphasis on real-world task management features.
                 </div>
               </div>
             </motion.div>
