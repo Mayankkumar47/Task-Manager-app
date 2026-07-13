@@ -14,7 +14,10 @@ export const createTask = async (req, res, next) => {
       todoChecklist,
     } = req.body
 
-    if (!Array.isArray(assignedTo)) {
+    let assignees = assignedTo
+    if (assignedTo === undefined || assignedTo === null) {
+      assignees = []
+    } else if (!Array.isArray(assignedTo)) {
       return next(errorHandler(400, "assignedTo must be an array of user IDs"))
     }
 
@@ -23,7 +26,7 @@ export const createTask = async (req, res, next) => {
       description,
       priority,
       dueDate,
-      assignedTo,
+      assignedTo: assignees,
       attachments,
       todoChecklist,
       createdBy: req.user.id,

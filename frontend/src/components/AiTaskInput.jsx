@@ -85,6 +85,7 @@ const AiTaskInput = ({ onTaskCreated }) => {
       // Ensure dueDate exists by assigning today + 1 day if not returned by AI
       const taskPayload = {
         ...preview,
+        assignedTo: [],
         dueDate: preview.dueDate ? new Date(preview.dueDate) : new Date(Date.now() + 86400000).toISOString()
       };
       
