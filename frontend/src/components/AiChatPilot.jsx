@@ -90,7 +90,7 @@ const AiChatPilot = ({ isOpen, onClose }) => {
             animate={{ opacity: 0.5 }}
             exit={{ opacity: 0 }}
             onClick={handleClose}
-            className="fixed inset-0 bg-black/60 z-30 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/60 z-[90] backdrop-blur-sm"
           />
 
           {/* Sliding Glass Drawer Container */}
@@ -99,7 +99,7 @@ const AiChatPilot = ({ isOpen, onClose }) => {
             animate={{ x: 0 }}
             exit={{ x: "100%" }}
             transition={{ type: "spring", damping: 22, stiffness: 180 }}
-            className="fixed right-0 top-0 bottom-0 w-full sm:w-[420px] bg-slate-950/95 border-l border-slate-900 z-40 flex flex-col font-sans shadow-2xl relative"
+            className="fixed right-0 top-0 bottom-0 w-full sm:w-[420px] bg-slate-950/95 border-l border-slate-900 z-[100] flex flex-col font-sans shadow-2xl"
           >
             {/* Ambient scanner overlay line */}
             <div className="absolute left-0 top-0 bottom-0 w-0.5 bg-[var(--color-accent)] opacity-40"></div>
@@ -198,7 +198,7 @@ const AiChatPilot = ({ isOpen, onClose }) => {
                 value={inputValue}
                 onChange={(e) => setInputValue(e.target.value)}
                 placeholder="Direct M.I.N.D. portal query..."
-                className="flex-1 bg-slate-950 text-slate-100 placeholder-slate-600 border border-slate-800 focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)] rounded-xl px-4 py-2.5 text-xs outline-none transition-all"
+                className="flex-1 bg-slate-950 text-slate-100 placeholder-slate-600 border border-slate-800 focus:border-[var(--color-accent)] focus:ring-1 focus:ring-[var(--color-accent)] rounded-xl px-4 py-2.5 text-base md:text-xs outline-none transition-all"
               />
               <button
                 type="submit"
