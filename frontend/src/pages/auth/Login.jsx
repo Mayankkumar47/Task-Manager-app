@@ -1,7 +1,7 @@
 import { useState } from "react"
 import AuthLayout from "../../components/AuthLayout"
 import { FaEyeSlash } from "react-icons/fa6"
-import { FaEye, FaLock, FaEnvelope, FaCheckCircle } from "react-icons/fa"
+import { FaEye, FaLock, FaEnvelope } from "react-icons/fa"
 import { Link, useNavigate } from "react-router-dom"
 import { validateEmail } from "../../utils/helper"
 import axiosInstance from "../../utils/axioInstance"
@@ -81,122 +81,121 @@ const Login = () => {
   return (
     <AuthLayout>
       <motion.div
-        className="glass-panel p-6 sm:p-8 rounded-2xl relative overflow-hidden bg-slate-900/40 border-slate-800/80 w-full text-left"
-        initial={{ opacity: 0, y: 15 }}
+        initial={{ opacity: 0, y: 18 }}
         animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45 }}
+        className="space-y-6"
       >
-        {/* Accent Glow Line at top of card */}
-        <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-[var(--color-accent)] to-transparent" />
-
-        <div className="space-y-6">
-          {/* Logo & Subtext */}
-          <div className="text-center">
-            <div className="flex justify-center mb-3">
-              <div className="bg-slate-950 border border-slate-900 p-3.5 rounded-xl shadow shadow-[var(--color-glow)]">
-                <FaCheckCircle className="text-2xl text-[var(--color-accent)] animate-pulse" />
-              </div>
-            </div>
-
-            <h1 className="text-lg font-bold font-mono tracking-widest text-slate-100 uppercase">
-              Sign In
-            </h1>
-
-            <p className="text-[10px] font-mono text-slate-500 uppercase tracking-wider mt-1 font-bold">
-              Enter your credentials to access your workspace
-            </p>
-          </div>
-
-          {/* FORM */}
-          <form onSubmit={handleSubmit} className="space-y-4">
-            
-            {/* Email */}
-            <div className="space-y-1">
-              <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                Email Address
-              </label>
-              <div className="flex items-center gap-3 border border-slate-800 px-3.5 py-2.5 rounded-xl bg-slate-950 focus-within:border-[var(--color-accent)] focus-within:ring-1 focus-within:ring-[var(--color-accent)] transition-all">
-                <FaEnvelope className="text-slate-600 text-xs" />
-                <input
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  onFocus={playClick}
-                  className="w-full text-xs outline-none bg-transparent text-slate-100 placeholder-slate-600"
-                  placeholder="you@example.com"
-                />
-              </div>
-            </div>
-
-            {/* Password */}
-            <div className="space-y-1">
-              <label className="text-[10px] font-mono text-slate-500 uppercase tracking-widest block font-bold">
-                Password
-              </label>
-              <div className="flex items-center gap-3 border border-slate-800 px-3.5 py-2.5 rounded-xl bg-slate-950 focus-within:border-[var(--color-accent)] focus-within:ring-1 focus-within:ring-[var(--color-accent)] transition-all relative">
-                <FaLock className="text-slate-600 text-xs" />
-                <input
-                  type={showPassword ? "text" : "password"}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  onFocus={playClick}
-                  className="w-full text-xs outline-none bg-transparent text-slate-100 placeholder-slate-600 pr-8"
-                  placeholder="••••••••"
-                />
-
-                <button
-                  type="button"
-                  onClick={() => { playClick(); setShowPassword(!showPassword); }}
-                  className="absolute right-3.5 text-slate-500 hover:text-white transition-colors cursor-pointer"
-                >
-                  {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
-                </button>
-              </div>
-            </div>
-
-            {/* Error Message */}
-            {error && (
-              <div className="bg-red-950/20 border border-red-900/30 text-red-400 text-[10px] font-mono p-3 rounded-xl">
-                Error: {error}
-              </div>
-            )}
-
-            {/* Button */}
-            <motion.button
-              whileHover={{ scale: 1.015 }}
-              whileTap={{ scale: 0.985 }}
-              type="submit"
-              disabled={loading}
-              className="w-full py-3.5 btn-primary rounded-xl text-xs font-bold uppercase tracking-wider disabled:opacity-40 disabled:cursor-not-allowed transition cursor-pointer mt-2"
-            >
-              {loading ? "Signing in..." : "Sign In"}
-            </motion.button>
-
-          </form>
-
-          {/* Quick Demo Login Box */}
-          <div className="mt-4 border-t border-slate-900/60 pt-4 space-y-2 select-none">
-            <p className="text-[9px] font-mono text-slate-500 uppercase tracking-widest text-center font-bold">
-              💡 Quick Demo Account (Click to Fill)
-            </p>
-            <button
-              type="button"
-              onClick={handleQuickFill}
-              className="w-full p-2.5 rounded-xl border border-slate-800 bg-slate-950/40 hover:bg-slate-900/20 hover:border-indigo-500/30 transition-all text-center group cursor-pointer block"
-            >
-              <p className="text-[10px] font-bold text-slate-300 group-hover:text-indigo-400">Team Member Demo Profile</p>
-              <p className="text-[8px] font-mono text-slate-500 mt-0.5">guest@taskflow.io | password: guestpasscode123</p>
-            </button>
-          </div>
-
-          {/* Footer */}
-          <p className="text-xs text-center text-slate-500 font-sans mt-4">
-            Don't have an account?{" "}
-            <Link to="/signup" onClick={playClick} className="text-[var(--color-accent)] font-semibold hover:underline">
-              Sign Up
-            </Link>
-          </p>
-
+        {/* Header */}
+        <div className="space-y-1.5">
+          <h2 className="text-2xl font-black tracking-tight text-white">Welcome back</h2>
+          <p className="text-sm text-slate-500 font-medium">Sign in to your TaskFlow workspace</p>
         </div>
+
+        {/* Quick Demo Card */}
+        <button
+          type="button"
+          onClick={handleQuickFill}
+          className="w-full group relative flex items-start gap-3.5 p-3.5 rounded-xl border border-indigo-500/25 bg-indigo-500/8 hover:bg-indigo-500/15 hover:border-indigo-500/45 transition-all text-left cursor-pointer"
+        >
+          <div className="w-8 h-8 rounded-lg bg-indigo-600/30 border border-indigo-500/25 flex items-center justify-center shrink-0 mt-0.5">
+            <span className="text-indigo-300 text-xs font-bold">→</span>
+          </div>
+          <div>
+            <p className="text-xs font-bold text-indigo-300 group-hover:text-indigo-200 transition-colors">Try Free Demo Account</p>
+            <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">
+              Click to auto-fill guest credentials and explore the platform instantly
+            </p>
+          </div>
+          <span className="absolute top-2.5 right-3 text-[9px] font-mono font-bold text-indigo-400 bg-indigo-500/15 border border-indigo-500/25 px-2 py-0.5 rounded-full uppercase tracking-wide">
+            Free
+          </span>
+        </button>
+
+        {/* Divider */}
+        <div className="flex items-center gap-3">
+          <div className="h-px flex-1 bg-white/[0.06]" />
+          <span className="text-[10px] font-mono text-slate-600 uppercase tracking-widest">or sign in manually</span>
+          <div className="h-px flex-1 bg-white/[0.06]" />
+        </div>
+
+        {/* Form */}
+        <form onSubmit={handleSubmit} className="space-y-4">
+
+          {/* Email */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-slate-400 block tracking-wide">
+              Email address
+            </label>
+            <div className="flex items-center gap-3 border border-white/[0.08] px-3.5 py-3 rounded-xl bg-white/[0.03] focus-within:border-indigo-500/60 focus-within:bg-indigo-500/5 transition-all">
+              <FaEnvelope className="text-slate-600 text-xs shrink-0" />
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                onFocus={playClick}
+                className="w-full text-sm outline-none bg-transparent text-slate-100 placeholder-slate-600"
+                placeholder="you@example.com"
+              />
+            </div>
+          </div>
+
+          {/* Password */}
+          <div className="space-y-1.5">
+            <label className="text-[11px] font-semibold text-slate-400 block tracking-wide">
+              Password
+            </label>
+            <div className="flex items-center gap-3 border border-white/[0.08] px-3.5 py-3 rounded-xl bg-white/[0.03] focus-within:border-indigo-500/60 focus-within:bg-indigo-500/5 transition-all relative">
+              <FaLock className="text-slate-600 text-xs shrink-0" />
+              <input
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                onFocus={playClick}
+                className="w-full text-sm outline-none bg-transparent text-slate-100 placeholder-slate-600 pr-8"
+                placeholder="••••••••"
+              />
+              <button
+                type="button"
+                onClick={() => { playClick(); setShowPassword(!showPassword) }}
+                className="absolute right-3.5 text-slate-500 hover:text-slate-300 transition-colors cursor-pointer"
+              >
+                {showPassword ? <FaEyeSlash size={14} /> : <FaEye size={14} />}
+              </button>
+            </div>
+          </div>
+
+          {/* Error */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -4 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="bg-red-500/8 border border-red-500/20 text-red-400 text-xs font-medium p-3 rounded-xl"
+            >
+              {error}
+            </motion.div>
+          )}
+
+          {/* Submit */}
+          <motion.button
+            whileHover={{ scale: 1.012 }}
+            whileTap={{ scale: 0.988 }}
+            type="submit"
+            disabled={loading}
+            className="w-full py-3 rounded-xl text-sm font-bold text-white bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 shadow-lg shadow-indigo-500/20 disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer mt-1"
+          >
+            {loading ? "Signing in…" : "Sign In"}
+          </motion.button>
+
+        </form>
+
+        {/* Footer */}
+        <p className="text-xs text-center text-slate-500">
+          Don't have an account?{" "}
+          <Link to="/signup" onClick={playClick} className="text-indigo-400 font-semibold hover:text-indigo-300 transition-colors">
+            Create account →
+          </Link>
+        </p>
       </motion.div>
     </AuthLayout>
   )
