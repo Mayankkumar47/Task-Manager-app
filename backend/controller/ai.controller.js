@@ -1,10 +1,48 @@
 import Task from "../models/task.model.js";
 
+const FALLBACK_MODELS = [
+  "openai/gpt-oss-120b",
+  "openai/gpt-oss-20b",
+  "qwen/qwen3.8-27b",
+  "groq/compound"
+];
+
+const callGroq = async (body) => {
+  let lastError = null;
+  for (const model of FALLBACK_MODELS) {
+    try {
+      const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
+        method: "POST",
+        headers: {
+          "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          ...body,
+          model,
+        }),
+      });
+
+      if (response.ok) {
+        return await response.json();
+      }
+
+      const errData = await response.json().catch(() => ({}));
+      lastError = new Error(errData.error?.message || `Groq responded with status ${response.status}`);
+      console.warn(`⚠️ Groq model ${model} failed (${response.status}):`, lastError.message);
+    } catch (err) {
+      lastError = err;
+      console.warn(`⚠️ Groq model ${model} exception:`, err.message);
+    }
+  }
+  throw lastError || new Error("All AI models failed to respond.");
+};
+
 export const parseTaskAI = async (req, res, next) => {
   try {
     const { prompt } = req.body;
 
-    console.log("📥 AI PARSE ENDPOINT TRIGGERED VIA GROQ");
+    console.log("📥 AI PARSE ENDPOINT TRIGGERED");
     if (!process.env.GROQ_API_KEY) {
       return res.status(500).json({
         message: "GROQ_API_KEY is not set in your environment.",
@@ -27,29 +65,15 @@ export const parseTaskAI = async (req, res, next) => {
       Note: Map priority to low, medium, or high capitalized as: 'Low', 'Medium', 'High'. Do not include any markdown code blocks or wrapper text, return ONLY the raw JSON object.
     `;
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.1,
-        response_format: { type: "json_object" },
-        messages: [
-          { role: "system", content: instructions },
-          { role: "user", content: `User input: ${prompt}` }
-        ]
-      })
+    const data = await callGroq({
+      temperature: 0.1,
+      response_format: { type: "json_object" },
+      messages: [
+        { role: "system", content: instructions },
+        { role: "user", content: `User input: ${prompt}` }
+      ]
     });
 
-    if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.error?.message || `Groq responded with status ${response.status}`);
-    }
-
-    const data = await response.json();
     const responseText = data.choices[0].message.content.trim();
     const structuredTaskData = JSON.parse(responseText);
 
@@ -112,28 +136,14 @@ export const chatAI = async (req, res, next) => {
       Keep the tone highly smart, supportive, and futuristic. If they mention specific task IDs or names, reference them directly.
     `;
 
-    const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
-      method: "POST",
-      headers: {
-        "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify({
-        model: "llama-3.3-70b-versatile",
-        temperature: 0.7,
-        messages: [
-          { role: "system", content: instructions },
-          { role: "user", content: `User message: ${message}` }
-        ]
-      })
+    const data = await callGroq({
+      temperature: 0.7,
+      messages: [
+        { role: "system", content: instructions },
+        { role: "user", content: `User message: ${message}` }
+      ]
     });
 
-    if (!response.ok) {
-      const errData = await response.json();
-      throw new Error(errData.error?.message || `Groq responded with status ${response.status}`);
-    }
-
-    const data = await response.json();
     const reply = data.choices[0].message.content.trim();
     console.log("✅ AI CHAT REPLY SUCCESS");
     return res.status(200).json({ reply });
